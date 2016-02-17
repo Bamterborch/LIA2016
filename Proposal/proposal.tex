@@ -1,0 +1,53 @@
+\documentclass[11pt,a4paper,twocolumn]{paper}
+\usepackage[hyphens]{url}
+\usepackage[pdftex]{graphicx}
+\usepackage[hidelinks]{hyperref}
+\usepackage[titletoc,title]{appendix}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{longtable}
+\usepackage{listings}
+\usepackage{courier}
+%\renewcommand{\bibname}{Related Work}
+\usepackage{datetime}
+\usepackage{caption}
+\usepackage{subcaption}
+\newdateformat{mydate}{\THEDAY\ \monthname[\THEMONTH] \THEYEAR}
+\usepackage{csquotes}
+\usepackage{array}
+
+% Create multipule i.e. three columns for names and email addresses
+\usepackage{multicol}
+\usepackage{relsize}
+\usepackage{xspace}
+
+%Start document
+\begin{document}
+\pagestyle{empty}
+\twocolumn[{%
+ \centering
+ \LARGE Proposal LIA 2016 \\[1.5em]
+ \normalsize
+ \begin{tabular}{*{2}{>{\centering}p{.50\textwidth}}}
+  \large{Bram ter Borch} & \large{Siem Hermans} \tabularnewline
+  \textsc{University of Amsterdam} & \textsc{University of Amsterdam} \tabularnewline
+  \url{bram.terborch@os3.nl} & \url{siem.hermans@os3.nl}
+ \end{tabular}\\[3em] % some more space after the title part
+}]
+
+
+\input{introduction.tex}
+\input{relatedwork.tex}
+\input{researchquestion.tex}
+\input{methodology.tex}
+\input{requirements.tex}
+\input{planning.tex}
+\input{ethics.tex}
+
+% Bibliography using bibtex
+\bibliographystyle{unsrt}
+\bibliography{proposal}
+
+\end{document}  
+
