@@ -3,6 +3,7 @@
 \usepackage[pdftex]{graphicx}
 \usepackage[hidelinks]{hyperref}
 \usepackage[titletoc,title]{appendix}
+\usepackage{breakurl}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -18,7 +19,12 @@
 \usepackage{csquotes}
 \usepackage{array}
 
-% Create multipule i.e. three columns for names and email addresses
+% Show watermark during draft phase
+\usepackage{draftwatermark}
+\SetWatermarkText{Draft}
+\SetWatermarkScale{5}
+
+% Create multiple i.e. three columns for names and email addresses
 \usepackage{multicol}
 \usepackage{relsize}
 \usepackage{xspace}
