@@ -39,3 +39,4 @@ Defining all resources in a single class would hardly be an improvement of a pre
 
 Classes can be defined but also require an 'include' declaration in the manifest. This way the code gets loaded. 
 
+When you tell Puppet to manage a file, it compares the md5 hash of the target file against that of the specified source file to check if any changes need to be made. Because the hashes did not match, Puppet knew that the target file did not match the desired state, and changed it to match the source file you had specified.
