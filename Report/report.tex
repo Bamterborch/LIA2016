@@ -1,0 +1,192 @@
+% Document setup
+\documentclass[a4paper, 11pt]{article}
+
+% Packages
+\usepackage{geometry}
+\usepackage{amsmath}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage[some]{background}
+\usepackage{lipsum}
+\usepackage[utf8]{inputenc}
+
+% Break URLs in text and references
+\usepackage{url}
+\def\UrlBreaks{\do\/\do-} % Break on these characters
+\usepackage{breakurl}
+\usepackage[hidelinks, breaklinks]{hyperref}
+
+\usepackage{float}
+\usepackage{color}
+\usepackage{booktabs}
+\usepackage{longtable,lscape}
+
+% Header setup
+\usepackage{fancyhdr}
+\usepackage[font=small,skip=10pt]{caption}
+\usepackage{courier}
+
+% Add unnumbered sections to toc
+\usepackage[titletoc,toc,title]{appendix}
+
+% Set up code listings
+\usepackage{listings}
+\lstset{ %
+language=sh,                    % choose the language of the code
+basicstyle=\footnotesize\ttfamily,breaklines=true,
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize\ttfamily, % the size of the fonts that are used for the line-numbers
+stepnumber=1,                   % the step between two line-numbers. If it is 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{light-gray},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+tabsize=2,                      % sets default tabsize to 2 spaces
+captionpos=b,                   % sets the caption-position to bottom
+breaklines=true,                % sets automatic line breaking
+breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)}          % if you want to add a comment within your code
+}
+\definecolor{light-gray}{gray}{0.95}
+
+
+\usepackage{fancyhdr}
+\fancypagestyle{acknowledgements}
+{
+\fancyhf{}
+\renewcommand{\headrulewidth}{1pt}%
+\fancyhead[R]{\textsc{Acknowledgements}} % 1. sectionname
+\fancyfoot[C]{\thepage}
+}
+
+\pagestyle{fancy}
+\renewcommand{\sectionmark}[1]{\markboth{#1}{}} % set the \leftmark
+
+\fancyhf{}
+\fancyhead[R]{\textsc{\leftmark}} % 1. sectionname
+\fancyfoot[C]{\thepage}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \renewcommand{\headrulewidth}{0pt}%
+
+}
+
+\makeatletter
+\def\printauthor{%
+    {\large \@author}}
+\makeatother
+
+\author{%
+	\vspace{.30cm}
+    \textbf{Bram ter Borch} \\
+    \texttt{\footnotesize bram.terborch@os3.nl}\vspace{35pt}
+    \textbf{Siem Hermans} \\
+    \texttt{\footnotesize siem.hermans@os3.nl}
+    }
+
+\begin{document}
+\begin{titlepage}
+\newgeometry{bottom=0.5cm}
+\begin{center}
+  \textbf{\huge Automated migration of configuration management systems \\}
+  \vspace{.3cm}
+  \Large \textit{A large-scale corporate fusion scenario}
+  \\
+  \vspace{.5cm}
+  \includegraphics[scale=1.2]{img/UvA-logo-english.jpg}
+  \\
+  \vspace{.5cm}
+  \normalsize \textbf{LIA Research Project}
+  \\
+  \normalsize System and Network Engineering
+  \\
+  \vspace{.3cm}
+  \normalsize {March 25, 2016}
+  \vspace{.2cm}
+\end{center}
+
+\begin{figure}[!hb]
+  \begin{center}
+  	\includegraphics[scale=0.55]{img/cover.jpg}
+  \end{center}
+\end{figure}
+
+\noindent
+\begin{minipage}{0.28\linewidth}
+    \begin{flushright}
+        \printauthor
+    \end{flushright}
+\end{minipage} \hspace{8pt}
+%
+\begin{minipage}{0.02\linewidth}
+	\vspace{1cm}
+    \rule{1pt}{171pt}
+\end{minipage} \hspace{-26pt}
+%
+\begin{minipage}{0.80\linewidth}
+\vspace{5pt}
+    \begin{abstract}
+    \footnotesize
+    \noindent
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam sodales mauris eget mi porttitor tristique. Aliquam pharetra finibus mollis. Etiam dictum tempor nulla cursus vestibulum. Aliquam turpis quam, tincidunt eget lacus ac, suscipit laoreet sapien. Proin sed volutpat eros, et dignissim mi. Donec diam ipsum, pretium non vestibulum eget, porttitor nec risus. Quisque libero orci, convallis et neque et, interdum malesuada risus. Ut interdum efficitur gravida. Ut nec elementum quam. Nullam at finibus odio. Mauris condimentum maximus malesuada. Maecenas lobortis risus at sapien egestas cursus. Nunc a nibh bibendum, porttitor orci et, scelerisque erat. Phasellus dapibus finibus erat vitae rhoncus. Praesent lobortis enim id interdum commodo. Fusce vitae arcu id dolor mollis viverra at nec diam. Phasellus sodales magna non elementum malesuada. Donec ut lacinia mauris. Aliquam eu congue urna. Vestibulum lobortis varius feugiat.
+    \end{abstract}
+\end{minipage}
+\begin{center}
+  \vspace{.8cm}
+  \normalsize \textbf{Supervisor:}
+  \\
+  \normalsize Dr. Arno Bakker
+  \\
+
+\end{center}
+
+\end{titlepage}
+\restoregeometry
+
+%Table of Contents
+\tableofcontents
+
+\newpage
+
+%Introduction
+\include{tex/introduction}
+
+%Related  Work
+\include{tex/relatedwork}
+
+%Background Information
+\include{tex/background}
+
+%Method
+\include{tex/methodology}
+
+%Results
+\include{tex/results}
+
+%Conclusion and discussion
+\include{tex/conclusion}
+
+%Future work
+\include{tex/futurework}
+
+%Acknowledgements
+\include{tex/acknowledgements}
+
+\cleardoublepage
+\begingroup
+
+\addcontentsline{toc}{section}{References}
+
+\begingroup
+\raggedright
+\bibliographystyle{unsrt}
+\bibliography{report}
+\endgroup
+
+%Appendices
+\include{tex/appendices}
+
+\end{document}
