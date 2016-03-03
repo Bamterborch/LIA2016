@@ -1,0 +1,8 @@
+\section{Methodology}\label{sec:method}
+From the list of available management tools in section \ref{sec:relatedwork}, two of the larger systems are chosen to see if they support the migration from one system to another. These systems are Ansible\cite{whatisansible} and Puppet\cite{whatispuppet}. To get to know them, both systems need to be installed and should manage some servers. Some virtual servers are needed to do this. The way the systems communicate to the clients needs to be investigated and the way of collecting or giving orders should be a big topic during this small project. 
+
+The possibility of one management system communicating to another management system is an interesting part. \\
+When migrating from Puppet to Ansible. Puppet needs to send a de-installation of its own management system command, and it should tell Ansible to manage the system from that point on. If the migration is the other way around. From Ansible to puppet, Ansible needs to connect to its client en make it install the Puppet client along the proper configuration. Then it should take the system off the list of management server in Ansible. So the order of all steps is important in these migrations. 
+
+When this is all known and there is some time left after researching these topics. The research can look into a new system, \texttt{mgmt} which is also referred to in the related work section of this proposal.
+
