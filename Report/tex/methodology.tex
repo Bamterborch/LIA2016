@@ -1,5 +1,8 @@
 \section{Methodology}\label{sec:methodology}
 
+To answer the question in chapter \ref{sec:researchquestion} a test environment was set up. The test environment contains a Puppet-master, an Ansible server, and two Ubuntu clients. one of these clients is managed by Puppet and the second is managed by Ansible. All of these systems are in the same subnet, therefore routing and or firewalling is not an issue. With this test environment the purpose of this research can be focussed on without having to deal with extra obstacles.  
+
+\subsection{Migrating from Puppet to Ansible}\label{subsec:puppettoansible}
 % insert image for situation 1. From puppet to Ansible 
 
 In case of a corporate merge where both companies are using a server management system. Company A uses Puppet and company B uses Ansible. When the decision is made to use Ansible as the new configuration management system all clients under the Puppet-master need to be added to the Ansible environment. But before this can be done, some prerequisites need to be matched in order not to loose functionality.
@@ -9,6 +12,9 @@ So first, the clients need to be added to Ansible as a group, this should be don
 
 % insert refs to seperate parts. especially he parts where ansible and puppet need to be communicating together. 
 
+
+\subsection{Migrating from Ansible to Puppet}\label{subsec:ansibletopuppet}
+
 % insert image for situation 2. From Ansible to puppet
 
 % insert image with ansible playbook.
@@ -17,5 +23,6 @@ So first, the clients need to be added to Ansible as a group, this should be don
 
 If the decision of the configuration management system goes into the favor of Puppet, all machines managed by Ansible need to receive a Puppet client. This should be done by an Ansible playbook. There are multiple ways to install the Puppet client onto the client group "webservers". A playbook can be created with the command to install the puppet client using the bash installer provided by the Puppet-master. This way is used during this small project, the playbook is shown at figure \ref{fig:puppetplaybook} An other way is to use the Puppet module within Ansible \cite{ansiblepuppet}. This uses a normal playbook to install the puppet client and the module to configure the puppet client. But the client group needs to be removed from the Ansible hosts file. When the client checks in at the puppet-master for the first time a certificate is exchanged. This should be accepted by default. A small setting needs to be changed within the Puppet configuration in order to make this happen\ref{fig:puppetallowall}. Before the clients check into puppet, they need to be member of the correct group in order to receive the correct settings. Therefore an Ansible playbook needs to be created that connects the clients to the correct classes. Classes are expected to be available before the migration. When the webservers are all added to the puppet server and did a check in they are under control of the Puppet-master.
 
-
+\subsection{expectations}\label{subsec:expectations}
+For the migration between systems, especially when moving away from a pull based system like Puppet. The system needs to be expanded first as explained in previous situation. The Puppet-client needs to be installed on the Ansible server to make sure the client is added to the host list and the playbook is run in the appropriate time. 
 
