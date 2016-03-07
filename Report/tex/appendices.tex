@@ -2,8 +2,37 @@
   \renewcommand\thetable{\thesection\arabic{table}}
   \renewcommand\thefigure{\thesection\arabic{figure}}
 
-  \section{Lorem ipsum} \label{app:lorem}
+  \section{Puppet Apache module} \label{app:puppetmodule}
+  \begin{lstlisting}
+   # This class definition depends on the puppetlabs/apache module
+   class pe_apache_app {
+
+   class { 'apache':
+     mpm_module => 'prefork',
+   }
+
+   include apache::mod::php
+
+   apache::vhost { 'pe_apache_app':
+     port     => '80',
+     docroot  => '/var/www/',
+     priority => '10',
+   }
+
+   file { '/var/www/pe_apache_app/index.php':
+     ensure  => file,
+     content => "This server is managed by Puppet.",
+     mode    => '0644',
+   }
+ }
+  \end{lstlisting}
   \newpage
+
+  \section{Puppet agent removal} \label{app:puppetagent}
+  \begin{lstlisting}
+  
+  \end{lstlisting}
+
 \end{appendices}
 
 
