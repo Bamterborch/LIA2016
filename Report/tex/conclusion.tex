@@ -4,6 +4,13 @@ Migration between different configuration management systems is a valid use case
 For the migration between systems with a different architecture
 
 
+% ups and downs of puppet and ansible
+% Puppet runs task out of order. so index.html could be written before apache is installed and therefore apache will overwrite
+% ansible only runs when playbook is fired
+% Ansible stops entire sequence when one job failes . puppet continues. 
+% ansible is in the kern simpler
+
+
 \section{Discussion}\label{sec:discussion}
 % Talk about use cases for running configuration management tools in parralel
 
