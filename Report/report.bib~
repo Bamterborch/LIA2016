@@ -152,7 +152,7 @@
 @misc{brown_2006,
     author={Brown, Martin},
     title={System Administration Toolkit: Standardizing your UNIX command-line tools},
-    url={http://www.ibm.com/developerworks/aix/library/au-satstandardsh.html},
+    howpublished={\url{http://www.ibm.com/developerworks/aix/library/au-satstandardsh.html}},
     urldate={2016-2-22},
     journal={Ibm.com},
     year={2006}
@@ -161,7 +161,7 @@
 @misc{ansiblepuppet,
     author={Docs.ansible.com},
     title={puppet - Runs puppet, Ansible Documentation},
-    url={http://docs.ansible.com/ansible/puppet_module.html},
+    howpublished={\url{http://docs.ansible.com/ansible/puppet_module.html}},
     urldate={2016-3-3},
     year={2016}
 }
@@ -169,7 +169,7 @@
 @misc{loukides_2012,
     author={Loukides, Mike},
     title={What is DevOps? - O'Reilly Radar},
-    url={http://radar.oreilly.com/2012/06/what-is-devops.html},
+    howpublished={\url{http://radar.oreilly.com/2012/06/what-is-devops.html}},
     urldate={2016-3-7},
     journal={Radar.oreilly.com},
     year={2012}
@@ -178,7 +178,7 @@
 @misc{gartner_2015,
     author={Rivera, Janessa and van der Meulen, Rob},
     title={Gartner Says By 2016, DevOps Will Evolve From a Niche to a Mainstream Strategy Employed by 25 Percent of Global 2000 Organizations},
-    url={http://www.gartner.com/newsroom/id/2999017},
+    howpublished={\url{http://www.gartner.com/newsroom/id/2999017}},
     urldate={2016-3-7},
     journal={Gartner.com},
     year={2015}
@@ -187,14 +187,15 @@
 @misc{frank_2016,
     author={Frank, Felix},
     title={From Catalog To Mgmt},
-    url={https://ffrank.github.io/features/2016/02/18/from-catalog-to-mgmt/},
+    howpublished={\url{https://ffrank.github.io/features/2016/02/18/from-catalog-to-mgmt/}},
     urldate={2016-3-7},
     journal={Felix' tech blog},
     year={2016}
 }
 
 @misc{NSSU,
-    url={http://www.juniper.net/techpubs/en_US/junos15.1/topics/task/installation/ex-series-software-upgrading-nssu-fixed-virtual-chassis-cli.html},
+    title={Upgrading Software on an {EX}3300, EX4200, EX4300, EX4500 and EX4550 Virtual Chassis, and Mixed Virtual Chassis Using Nonstop Software Upgrade (CLI Procedure)},
+    howpublished={\url{http://www.juniper.net/techpubs/en_US/junos15.1/topics/task/installation/ex-series-software-upgrading-nssu-fixed-virtual-chassis-cli.html}},
     urldate={2016-3-7},
     journal={Juniper.net},
     year={2016}
@@ -203,7 +204,7 @@
 @misc{ISSU,
     author={System, Cisco},
     title={Cisco IOS In Service Software Upgrade and Enhanced Fast Software Upgrade Process},
-    url={http://www.cisco.com/c/en/us/td/docs/ios/12_2sb/feature/guide/sb_issu.html},
+    howpublished={\url{http://www.cisco.com/c/en/us/td/docs/ios/12_2sb/feature/guide/sb_issu.html}},
     urldate={2016-3-7},
     journal={Cisco},
     year={2016}
