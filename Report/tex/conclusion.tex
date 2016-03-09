@@ -1,4 +1,8 @@
 \section{Conclusion}\label{sec:conclusion}
+Migration between different configuration management systems is a valid use case for large installations. Puppet origins from 2005 and Ansible origins from 2012. The architecture of these two systems is totally different but Puppet and Ansible are the most used CMS's used. As seen in chapter \ref{ch:relatedwork} a lot of companies are migrating away from puppet because the systems tends to end up into spaghetti code \cite{movingawayfrompuppet} where the same result could be created by newer systems with less code. According to Ryan Lane \cite{movingawayfrompuppet} the puppet code was ten thousand lines where the same result was achieved by 1000 lines of Ansible code. Using a CMS within a small company is not usefull since the CMS also needs to be maintained by the system administrator (SA). Using a CMS allows an SA to fix system bugs like shellshock within a couple of minutes on all managed servers as shown in code snippet \ref{lst:shellshock}.
+
+For the migration between systems with a different architecture
+
 
 \section{Discussion}\label{sec:discussion}
 % Talk about use cases for running configuration management tools in parralel
