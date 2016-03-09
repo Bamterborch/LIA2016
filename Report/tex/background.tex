@@ -43,5 +43,5 @@ However, providing the option for parallel execution introduces room for errors 
 \subsubsection{Event based model}
 All the discussed configuration management systems have a notion of idempotence. In practice this means that the tools check the state of a certain element and compare it to a desired end state. If the state at time of checking has diverged from the desired state, the configuration will be altered by either a pull (Puppet) or push (Ansible) operation. In the context of Puppet this check operation is executed every 30 minutes by default. Ansible's push operation has to be manually scheduled with a \texttt{cronjob}. This mode of operation allows a configuration to diverge during the timeframe in which no check operation is performed. Naturally, a more preferable method would be to define an end state 
 
-\subsuebsection{Migration possibilities}
+\subsubsection{Migration possibilities}
 Another advantage which \texttt{mgmt} poses is that a migration between a tool like Puppet the tools could potentially be fairly easy. Converting Puppet modules to \texttt{mgmt} graphs is a straight forward process as displayed by ffrank \cite{}. However, due to the fact that \texttt{mgmt} still uses an experimental DSL, conversions at this point are mood. This is also exhibited by Frank \cite{}. 
