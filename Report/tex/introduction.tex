@@ -6,18 +6,20 @@ The concept of configuration management systems predates the relatively new 'Dev
 Therefore, the aim of this research project is to answer the following main research question:
 
 \begin{quote}
-\textit{How can an operating system be automatically migrated between two configuration management systems?} %Nog niet helemaal over eens :)
+\textit{How can an operating system be automatically migrated between two configuration management systems?} %Nog niet helemaal over eens :) -  Verzin iets beters dan! |D
 \end{quote}
 
 \noindent
 The scope of this research is limited by exclusively examining the configuration management tools Puppet and Ansible. Puppet currently proves to have the most commercial backing and is most likely to be deployed in production environments [SOURCE]. Ansible on the other hand is a more recent tool and is gaining traction in corporate environments at a rapid rate. It is being developed by an active community and is backed by Red Hat. Additionally, since current configuration management systems are effectively limited in scalability due to their architectural model, we briefly discuss the distributed architecture of \texttt{mgmt}, which at this point in time is a prototype configuration management system.
 
-Migrating between systems can be done in different strategies, when using Configuration management system (CMS) A on all of the servers. New servers can be managed by CMS B. This will slowly migrate between the systems. The lifetime of a server dictates the time to migrate, nowadays only the low level systems like NTP, DNS and authentication server should be bare metal servers. All other services depending on these could be virtual. Therefore the lifetime of these virtual servers is often less than the lifetime of bare metal machines. [SOURCES] Since we use Virtual machines the migration process could be finished a lot faster. In a cluster of 10 webservers managed by CMS A offering the same website, a new webserver could be created managed by CMS B. When tested and approved it should be added to the cluster. An old server should be removed from the cluster and decommissioned. In Large scale environments this will be an extensive job.
-To keep server management easy and effective. One system should be used and the migration should not stretch multiple years. A Big bang scenario is a proper alternative. Migrating all the webservers from CMS A to CMS B by a set of automated steps without installing new servers. Therefore not using extra resources and migrating without downtime. This big bang scenario is explained in this report as the focus of this report lays on Large Installation Adminstration.
+Migrating between systems can be done in different strategies and using different tooling, when using Configuration management system (CMS) A on all of the servers. New servers can be managed by CMS B. This will slowly migrate between the systems. The lifetime of a server dictates the time to migrate, nowadays only the low level systems like NTP, DNS and authentication server should be bare metal servers. All other services depending on these could be virtual. The lifetime of these virtual servers is often less than the lifetime of bare metal machines because the virtual machines are created to support a specific service and are terminated directly when the service is no longer needed. Since we use Virtual machines the migration process could be finished a lot faster. In a cluster of 10 webservers managed by CMS A offering the same website, a new webserver could be created managed by CMS B. When tested and approved it should be added to the cluster. An old server should be removed from the cluster and decommissioned. In Large scale environments this will be an extensive job.
 
 \begin{quote}
-According to Jaap van Ginkel, "More people scale out services by adding virtual servers to the service." 
+According to Jaap van Ginkel on thursday 10-3-2016 during a lecture on Large Installation Administration, "More system administrators scale out services by using virtual machines"
 \end{quote}
+
+To keep server management easy and effective. One system should be used and the migration should not stretch multiple years. A Big bang scenario is a proper alternative. Migrating all the webservers from CMS A to CMS B by a set of automated steps without installing new servers. Therefore not using extra resources and migrating without downtime. This big bang scenario is explained in this report as the focus of this report lays on Large Installation Adminstration.
+
      
 % Talk about Big bang migraton vs phased migration
 http://www.data-migrations.com/strategy.html
