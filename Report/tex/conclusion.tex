@@ -13,4 +13,12 @@ For the migration between systems with a different architecture as the example i
 
 \section{Discussion}\label{sec:discussion}
 % Talk about use cases for running configuration management tools in parralel
+During this project we have performed an in place migration from Puppet to Ansible and vice versa with a single CMS managing the whole infrastructure as a result. Arguably, there are use cases in which both systems can coexist with varying purposes in mind. Villamil \cite{} for example argues that Ansible is more suitable for server deployments and installation whereas Puppet excels in defining an end state for a system. From a technical standpoint, such a 'migration trajectory' is significantly easier as it omits the automated removal step from the migration strategy as portrayed in section \ref{sec:methodology}. Additionally, some companies might employ an immutability concept when deploying servers. In such a scenario, when configuration changes have to occur, the source configuration changes to the server would require the template to be redefined, and thus the server to  be deployed again. Such a migration could be done by gradually decommisioning systems from the old 
+
+However, an in place migration is significantly more preferable when the amount of servers to be migrated is large.  
+Arguably, there are use cases in which 
+
+
+When a company applis a concept of immutability when deploying servers, any form of configuration change would require rok 
+
 http://t37.net/should-i-use-ansible-or-puppet-short-answer-both.html
