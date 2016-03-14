@@ -21,7 +21,7 @@
 
    file { '/var/www/pe_apache_app/index.php':
      ensure  => file,
-     content => "This server is managed by Puppet.",
+     content => "This server is managed by Puppet!",
      mode    => '0644',
    }
  }
@@ -31,6 +31,49 @@
   \section{Puppet agent removal} \label{app:puppetagent}
   \begin{lstlisting}
   
+  \end{lstlisting}
+  
+  \newpage  
+  \section{Ansible migration playbook} \label{app:ansiblemigration}
+  \begin{lstlisting}
+  ---
+  - hosts: slave02
+    sudo: yes
+    tasks:
+     - lineinfile: dest=/etc/hosts line="172.16.175.131 puppet-master.puppet.local" state=present
+     - name: Install puppet agent
+       shell: curl -k https://puppet-master.puppet.local:8140/packages/current/install.bash | sudo bash
+  \end{lstlisting}
+
+  \newpage
+  \section{Ansible apache playbook} \label{app:ansibleplaybook}
+  \begin{lstlisting}
+    ---
+    - hosts: webservers
+      sudo: yes
+      tasks:
+        - name: install apache2
+          apt: name=apache2 update_cache=yes state=latest
+
+        - name: enabled mod_rewrite
+          apache2_module: name=rewrite state=present
+          notify:
+            - restart apache2
+
+        - name: delete old apache index.html
+          file: path=/var/www/html/index.html state=absent
+
+        - name: create new awesome index.php
+          file: path=/var/www/html/index.php state=file
+
+        - lineinfile: dest=/var/www/html/index.php regexp='.' state=absent
+        - lineinfile: dest=/var/www/html/index.php line="This machine is managed by Ansible!" state=present
+          notify:
+            - restart apache2
+
+    handlers:
+      - name: restart apache2
+        service: name=apache2 state=restarted
   \end{lstlisting}
 
 \end{appendices}
