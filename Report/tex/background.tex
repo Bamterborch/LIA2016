@@ -20,6 +20,18 @@ As the line between system management and system orchestration is becoming thinn
       when: ansible_os_family == "RedHat"
 \end{lstlisting}
 
+\subsection{Migration strategies}\label{subsec:migrationstrategies}
+Migrating between systems can be done in different strategies and using different tooling, when using Configuration management system (CMS) A on all of the servers. New servers can be managed by CMS B. This will slowly migrate between the systems. The lifetime of a server dictates the time to migrate, nowadays only the low level systems like NTP, DNS and authentication server should be bare metal servers. All other services depending on these could be virtual. The lifetime of these virtual servers is often less than the lifetime of bare metal machines because the virtual machines are created to support a specific service and are terminated directly when the service is no longer needed. Since we use Virtual machines the migration process could be finished a lot faster. In a cluster of 10 webservers managed by CMS A offering the same website, a new webserver could be created managed by CMS B. When tested and approved it should be added to the cluster. An old server should be removed from the cluster and decommissioned. In Large scale environments this will be an extensive job.
+
+\begin{quote}
+According to Jaap van Ginkel on thursday 10-3-2016 during a lecture on Large Installation Administration, "More system administrators scale out services by using virtual machines"
+\end{quote}
+
+To keep server management easy and effective. One system should be used and the migration should not stretch multiple years. A Big bang scenario is a proper alternative. Migrating all the webservers from CMS A to CMS B by a set of automated steps without installing new servers. Therefore not using extra resources and migrating without downtime. This big bang scenario is explained in this report as the focus of this report lays on Large Installation Adminstration.
+
+http://www.data-migrations.com/strategy.html
+
+
 \subsection{Orchestration and configuration management}\label{subsec:orchestration}
 In this report we repeatedly discuss configuration management. As this term carries a somewhat ambiguous definition, we settle on the definition as presented by Lexis \cite{}. He defines configuration management as ``the techniques and policies to track hardware, infrastructure and software, and the configuration thereof''. During the course of this report we will use this definition exclusively.
 
