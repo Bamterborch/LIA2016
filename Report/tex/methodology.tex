@@ -6,11 +6,9 @@ In this test a server running apache needs to be  migrate between Puppet and Ans
 \subsection{Migrating from Puppet to Ansible}\label{subsec:puppettoansible}
 
 \begin{figure}[!hb]
-    \begin{center}
-        \includegraphics[scale=0.55]{img/PuppettoAnsible.pdf}
+        \includegraphics[scale=0.5]{img/PuppettoAnsible.pdf}
         \caption{Migration from Puppet to Ansible.}
         \label{fig:situation1}
-    \end{center}
 \end{figure}
 
 In case of a corporate merge where both companies are using a server management system. Company A uses Puppet and company B uses Ansible. When the decision is made to use Ansible as the new configuration management system all clients under the Puppet-master need to be added to the Ansible environment. But before this can be done, some prerequisites need to be matched in order not to loose functionality.
@@ -22,11 +20,9 @@ So first, the clients need to be added to Ansible as a group, this should be don
 \subsection{Migrating from Ansible to Puppet}\label{subsec:ansibletopuppet}
 
 \begin{figure}[!hb]
-    \begin{center}
-        \includegraphics[scale=0.55]{img/AnsibletoPuppet.pdf}
+        \includegraphics[scale=0.5]{img/AnsibletoPuppet.pdf}
         \caption{Migration from Ansible to Puppet.}
         \label{fig:situation2}
-    \end{center}
 \end{figure}
 
 \begin{lstlisting}
