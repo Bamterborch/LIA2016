@@ -2,7 +2,26 @@
 During this project we have performed an in place migration from Puppet to Ansible and vice versa with a single CMS managing the whole infrastructure as a result.
 
 \subsection{Product comparison}
-%Discuss operational advantages and implications (Table)
+
+\begin{table}[] 
+\centering
+\caption{Comparison between most used configuration management systems a new model}
+\label{table:comparison}
+\begin{tabular}{l|l|l|l|}
+\cline{2-4}
+             	  	& Puppet       & Anisible                                                               & MGMT         \\ \hline
+\multicolumn{1}{|l|}	{Introduced}   & 2005	    & 2012								     & 2015	    \\ \hline
+\multicolumn{1}{|l|}	{Architecture} & Pull         & Push                                                                   & Distributed  \\ \hline
+\multicolumn{1}{|l|}	{Client}       & Yes          & None                                                                   & Mash of agents  \\ \hline
+\multicolumn{1}{|l|}	{TCP port}     & 8140         & 22                                                                     & 2379             \\ \hline
+\multicolumn{1}{|l|}	{Language}     & Puppet DSL   & YAML                                                                   & Experimental DSL  \\ \hline
+\multicolumn{1}{|l|}	{Processing}   & Random execution		& Sequential                                                            & parallel execution \\ \hline
+\multicolumn{1}{|l|} 	{Event driven} & No           & No                                                                     & Yes              \\ \hline
+\multicolumn{1}{|l|}	{OS support}   & \begin{tabular}[c]{@{}l@{}}Major Operating systems \\ that allow a puppet client\end{tabular} & \begin{tabular}[c]{@{}l@{}}Everything that \\ accepts SSH\end{tabular} & \begin{tabular}[c]{@{}l@{}}Major Operating \\ systems \end{tabular} \\ \hline 
+\end{tabular}
+\end{table}
+
+As show in table /ref{table:comparison} there are some different architectures for configuration management available. All with there own advantages and disadvantages. The products in the table are introduced years from each other. The trend went from pull based to push based systems where the latest approach uses a distributed system.
 
 %Talk about consolidation of amount of lines of code
 As seen in chapter \ref{sec:relatedwork} a lot of companies are migrating away from puppet because the systems tends to end up into spaghetti code \cite{movingawayfrompuppet} where the same result could be created by newer systems with less code. According to Ryan Lane \cite{movingawayfrompuppet} the puppet code was ten thousand lines where the same result was achieved by thousand lines of Ansible code. Using a CMS within a small company is not very usefull since the CMS also needs to be maintained by the system administrator (SA). Using a CMS allows an SA to fix system bugs like shellshock within a couple of minutes on all managed servers as shown in code snippet \ref{lst:shellshock}.
