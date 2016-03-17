@@ -1,4 +1,5 @@
-- hosts: all
+
+— hosts: all
   gather_facts: yes
   remote_user: administrator
   sudo: yes
