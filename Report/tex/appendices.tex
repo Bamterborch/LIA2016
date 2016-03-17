@@ -24,13 +24,48 @@
      content => "This server is managed by Puppet!",
      mode    => '0644',
    }
- }
+  }
   \end{lstlisting}
   \newpage
 
   \section{Puppet agent removal} \label{app:puppetagent}
   \begin{lstlisting}
-  
+   # This class definition initiates a deinstallation of the Puppet
+   # agent on the client machine. The placement of the uninstallation
+   # script is environment dependent.
+       
+   class pe_removal_app {
+
+     exec { 'download_uninstaller':
+        command => wget --no-check-certificate https://puppet-master.puppet.local:8140/packages/current/uninstall.bash;
+        wget --no-check-cerificate https://puppet-master.puppet.local:8140/packages/current/utilities,
+        path    => '/usr/local/bin/:/bin/',
+        cwd     => "/tmp/",
+     }     
+
+     # Puppet runs with a semi-random order. Therefore the required 
+     # files are ensured to be present prior to executing the uninstaller. 
+     # Also refer to background section in this report.
+ 
+     file { '/tmp/uninstall.sh': 
+        ensure => present,
+        before => Exec['run_uninstaller'] 
+     }
+
+     file { '/tmp/uninstall.sh': 
+        ensure => present,      
+        before => Exec['run_uninstaller']                  
+     }
+
+     exec { 'run_uninstaller':
+        # Remove database, purge and assume yes
+        command => 'bash -c /tmp/puppet-enterprise-uninstaller -d -p y',
+        path    => '/usr/local/bin/:/bin/',
+        user	=> root,
+        cwd     => "/tmp/",
+     }
+   }
+ 
   \end{lstlisting}
   
   \newpage  
@@ -46,7 +81,7 @@
   \end{lstlisting}
 
   \newpage
-  \section{Ansible apache playbook} \label{app:ansibleplaybook}
+  \section{Ansible Apache playbook} \label{app:ansibleplaybook}
   \begin{lstlisting}
     ---
     - hosts: webservers

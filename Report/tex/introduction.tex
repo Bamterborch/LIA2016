@@ -10,28 +10,4 @@ Therefore, the aim of this research project is to answer the following main rese
 \end{quote}
 
 \noindent
-<<<<<<< HEAD
-Several sub-questions have been posed to support the main question:
-\begin{itemize}
-    \setlength\itemsep{1pt}
-    \item \textit{What are the implications of migrating between configuration management systems in general?}
-    \item \textit{Which architectural models do current configuration mangement systems employ?}
-\end{itemize}
-=======
-The scope of this research is limited by exclusively examining the configuration management tools Puppet and Ansible. Puppet currently proves to have the most commercial backing and is most likely to be deployed in production environments [SOURCE]. Ansible on the other hand is a more recent tool and is gaining traction in corporate environments at a rapid rate. It is being developed by an active community and is backed by Red Hat. Additionally, since current configuration management systems are effectively limited in scalability due to their architectural model, we briefly discuss the distributed architecture of \texttt{mgmt}, which at this point in time is a prototype configuration management system.
-
-Migrating between systems can be done in different strategies and using different tooling, when using Configuration management system (CMS) A on all of the servers. New servers can be managed by CMS B. This will slowly migrate between the systems. The lifetime of a server dictates the time to migrate, nowadays only the low level systems like NTP, DNS and authentication server should be bare metal servers. All other services depending on these could be virtual. The lifetime of these virtual servers is often less than the lifetime of bare metal machines because the virtual machines are created to support a specific service and are terminated directly when the service is no longer needed. Since we use Virtual machines the migration process could be finished a lot faster. In a cluster of 10 webservers managed by CMS A offering the same website, a new webserver could be created managed by CMS B. When tested and approved it should be added to the cluster. An old server should be removed from the cluster and decommissioned. In Large scale environments this will be an extensive job.
-
-\begin{quote}
-"More system administrators scale out services by using virtual machines." Jaap van Ginkel 10-3-2016.
-\end{quote}
-
-To keep server management easy and effective. One system should be used and the migration should not stretch multiple years. A Big bang scenario is a proper alternative. Migrating all the webservers from CMS A to CMS B by a set of automated steps without installing new servers. Therefore not using extra resources and migrating without downtime. This big bang scenario is explained in this report as the focus of this report lays on Large Installation Adminstration.
-
-     
-% Talk about Big bang migraton vs phased migration
-http://www.data-migrations.com/strategy.html
->>>>>>> 739bd0c62256992e7814fddd65a1dabe8425e422
-
-\noindent
 An automatic migration in the sense of this report refers to a seamless migration between systems in which a node is migrated, in production, without any perceivable consequences from an end user perspective. The scope of this research is limited by exclusively examining the configuration management tools Puppet and Ansible. Puppet currently proves to have the most commercial backing and is most likely to be deployed in production environments \cite{tecosystems_2013}. Ansible on the other hand is a more recent tool and is gaining traction in corporate environments at a rapid rate. It is being developed by an active community and is backed by Red Hat. Additionally, since current configuration management systems are effectively limited in scalability due to their architectural model, we briefly discuss the distributed architecture of \texttt{mgmt}, which at this point in time is a prototype configuration management system.
