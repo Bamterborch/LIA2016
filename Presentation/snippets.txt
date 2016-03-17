@@ -1,0 +1,73 @@
+class shellshock {
+	class shellshock::fix (
+	  $bash_url = $shellshock::fix::params::bash_url,
+	) inherits shellshock::fix::params {
+	  anchor {'shellshock::fix::repo':
+	  }->
+	  class {'shellshock::fix::package':
+	    bash_url => $bash_url,
+	  }
+	}
+
+	class shellshock::fix::params {
+
+	  $bash_url = $::architecture ? {
+	    'i386'  => 'http://ftp.linux.it/pub/People/md/bash/bash_3.2-4.2_i386.deb',
+	    'amd64' => 'http://ftp.linux.it/pub/People/md/bash/bash_3.2-4.2_amd64.deb',
+	    default => 'http://ftp.linux.it/pub/People/md/bash/bash_3.2-4.2_i386.deb',
+	  }
+	}
+}
+
+define shellshock::fix::url-package (
+  $url,
+  $provider,
+  $package = undef,
+) {
+
+  if $package {
+    $package_real = $package
+  } else {
+    $package_real = $title
+  }
+
+  $package_path = "/tmp/${package_real}"
+
+  exec {'download':
+    command => "/usr/bin/wget -O ${package_path} ${url}"
+  }
+
+  package {'install':
+    ensure   => installed,
+    name     => "${package}",
+    provider => 'dpkg',
+    source   => "${package_path}",
+  }
+
+  file {'cleanup':
+    ensure => absent,
+    path   => "${package_path}",
+  }
+
+  Exec['download'] -> Package['install'] -> File['cleanup']
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
