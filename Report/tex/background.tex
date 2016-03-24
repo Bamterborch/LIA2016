@@ -1,6 +1,8 @@
 \section{Background}\label{sec:background}
 As the line between system management and system orchestration is becoming thinner, configuration management tools are likely to be used for some orchestration purposes \cite{papazoglou2003service}. Additionally, all configuration management systems (CMS) are using either a push or a pull system to inform clients in case of updates. Lastly, \texttt{mgmt} is a new system which challenges the architectural model of established configuration management tools. This section presents a brief comparison of the selected configuration management tools and the distributed \texttt{mgmt}.
 
+%added a citation about orchestration and SOA. Don't know if it is really related. But in a far distance it empowers the first line of this section.
+
 \begin{lstlisting}[caption={Shellshock security patching with Ansible playbook},label=lst:shellshock]
 - hosts: all
   gather_facts: yes
