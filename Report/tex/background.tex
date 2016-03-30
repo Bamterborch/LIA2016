@@ -2,7 +2,7 @@
 This section presents an overview of the CMS's discussed in this report and briefly examines the language constructs used within each system. Additionally, as \texttt{mgmt} is a new system which challenges the architectural model of established configuration management systems, this section presents a brief overview of \texttt{mgmt}. Lastly, migration possibilities for the selected systems are discussed.
 
 \subsection{Product overview}
-In this report we repeatedly discuss configuration management systems. As this term carries a somewhat ambiguous definition, we settle on the definition as presented by Lexis \cite{lexis_2016} during a guest lecture at the University of Amsterdam. He defines configuration management as \textit{"the techniques and policies to track hardware, infrastructure and software, and the configuration thereof"}. During the course of this report we will use this definition exclusively.
+This report repeatedly discusses the concept of configuration management systems. As this term carries a somewhat ambiguous definition, we settle on the definition as presented by Lexis \cite{lexis_2016} during a guest lecture at the University of Amsterdam. He defines configuration management as \textit{"the techniques and policies to track hardware, infrastructure and software, and the configuration thereof"}. This definition will be used exclusively during the course of this report.
 
 There are a lot of CMS's on the market and commonly each system employs a different architectural model. Our selection, consisting of Puppet, Ansible and \texttt{mgmt} each use a different architectural model. Additionally, each system uses system-specific language constructs. To provide some clarity prior to going into a migration, the main differences between each system are visualized in table \ref{table:comparison}. As shown in table \ref{table:comparison} there are various different architectures for configuration management systems available. Each having their own advantages and disadvantages. The products in the table are introduced years apart from each other and exhibit a clear trend. Products went from pull-based to push-based systems. Nowadays efforts are being made to create a distributed model.
 
@@ -12,13 +12,13 @@ There are a lot of CMS's on the market and commonly each system employs a differ
 \begin{tabular}{@{}llll@{}}
 \toprule
  & \textbf{Puppet} & \textbf{Ansible} & \textbf{\texttt{Mgmt}} \\ \midrule
-\textbf{Introduced} & 2005 & 2012 & 2016 \\
-\textbf{Architecture} & Pull & Push & Distributed \\
-\textbf{Client} & Yes & No & Mesh of agents \\
-\textbf{TCP port} & 8140 & 22 & 2379 \\
-\textbf{Language} & Puppet DSL & YAML & Experimental DSL (YAML) \\
-\textbf{Processing} & (Semi) Random execution & Sequential execution & Parallel execution \\
-\textbf{Event driven} & No & No & Yes \\
+\textbf{Introduced} & 2005 & 2012 & 2016 \\ \midrule
+\textbf{Architecture} & Pull & Push & Distributed \\ \midrule
+\textbf{Client} & Yes & No & Mesh of agents \\ \midrule
+\textbf{TCP port} & 8140 & 22 & 2379 \\ \midrule
+\textbf{Language} & Puppet DSL & YAML & Experimental DSL (YAML) \\ \midrule
+\textbf{Processing} & (Semi) Random execution & Sequential execution & Parallel execution \\ \midrule
+\textbf{Event driven} & No & No & Yes \\ \midrule
 \textbf{OS support} & \begin{tabular}[c]{@{}l@{}}Major operating systems \\ that allow a Puppet Agent\end{tabular} & Every OS with support for SSH & \begin{tabular}[c]{@{}l@{}}UNIX based systems with \\ \texttt{systemd} and PackageKit \\ support\end{tabular} \\ \bottomrule
 \end{tabular}%
 }
@@ -47,7 +47,7 @@ Traditionally deployed CMS's generally use either a push- or a pull-based system
 \end{subfigure}
 \begin{subfigure}{.33\textwidth}
   \centering
-  \includegraphics[scale=0.37]{img/distributed.png}
+  \includegraphics[scale=0.39]{img/distributed.png}
   \caption{Distributed architecture}
   \label{fig:sub3}
 \end{subfigure}
@@ -79,7 +79,7 @@ Besides distribution \texttt{mgmt} introduces the ability to perform actions in 
 Parallelization does allow a system to reach its end state more rapidly. Long running processes which limited the deployment speed in a sequential process can now be converge quicker. In a real world scenario it isn't uncommon for a company to have multiple disconnected modules without inter-dependencies running simultaneously. The experiments in section \ref{sec:methodology} further explore the concept of parallelization. 
 
 \subsubsection{Event based model}
-Traditional CMS's are limited by the fact that a desired state is only applied perodically or manually. This mode of operation allows a configuration to diverge during the timeframe in which no check operation is performed by the master server. Naturally, a more preferable method would be to define an end state and have it applied constantly. \texttt{Mgmt} attempts to achieve his by triggering a reconvergence operation based on system events. For example, when a file is changed on the system which is being managed by \texttt{mgmt}, an \texttt{inotify} event is triggered (which is coupled to \texttt{dbus}. Based on this event the \texttt{mgmt} agent checks the desired state based on key-value pairs in the distributed \texttt{etcd} store and reconverges to that given state. Similarly for service states \texttt{systemd} events are checked and software packages are based on PackageKit events. By utilising this methodology, rapid convergence of the desired state in an environment can be achieved. The event based nature of \texttt{mgmt} is further explored in a separate experiment in section \ref{sec:methodology}. As shown in table \ref{table:comparison}, the dependency on these event triggers limits \texttt{mgmt} to UNIX systems which use PackageKit and \texttt{systemd}.  
+Traditional CMS's are limited by the fact that a desired state is only applied perodically or manually. This mode of operation allows a configuration to diverge during the timeframe in which no check operation is performed by the master server. Naturally, a more preferable method would be to define an end state and have it applied constantly. \texttt{Mgmt} attempts to achieve this by triggering a reconvergence operation based on system events. For example, when a file is changed on the system which is being managed by \texttt{mgmt}, an \texttt{inotify} event is triggered (which is coupled to \texttt{dbus}. Based on this event the \texttt{mgmt} agent checks the desired state based on key-value pairs in the distributed \texttt{etcd} store and reconverges to that given state. Similarly for service states \texttt{systemd} events are checked and software packages are based on PackageKit events. By utilising this methodology, rapid convergence of the desired state in an environment can be achieved. The event based nature of \texttt{mgmt} is further explored in a separate experiment in section \ref{sec:methodology}. As shown in table \ref{table:comparison}, the dependency on these event triggers limits \texttt{mgmt} to UNIX systems which use PackageKit and \texttt{systemd}.  
 
 \subsection{Language constructs}
 A primary reason for companies to migrate away from Puppet is because defining a desired state in Puppets proprietary DSL is relatively difficult. Puppet uses modules in which the defined resources are hierachically structured. The hierarhical structure is achieved by defining a series of interconnected class definitions. When modules grow in size and become more complex the amount of code required to define a state becomes unmanageable. Lane \cite{movingawayfrompuppet} from the company 'Lyft' acknowledges this issue and talks about how their Puppet code base consisted of approximately ten thousand lines of code where the same result was achieved by circa a thousand lines of Ansible code after migrating. Ansible on the other hand uses a DSL based on Yet Another Markup Language (YAML) which allows for more human readable code with actions being defined in a sequential manner. Listing \ref{lst:shellshock} provides an example of a piece of Ansible code which can fix the Shellshock vulnerability in a relatively small amount of lines \cite{severdensity_2015}. The Puppet module counterpart on the other hand consists of many hierachically structured and interconnected class definitions \footnote{A Puppet module for fixing the Shellshock vulnerability is available at \url{https://forge.puppetlabs.com/renanvicente/shellshock/readme}.}.
@@ -127,6 +127,7 @@ By using a similar language like Ansible, \texttt{mgmt} would be a logical migra
 Migrating between systems can be done by using various strategies and with a broad range of systems. When using CMS A on all of the servers, new servers can be managed by CMS B. This will result in a slow migration between the management systems. The lifetime of a server dictates the time it will take to migrate, nowadays only the low level systems like NTP, DNS and authentication server should be bare metal servers. All other services depending on these could be virtual. The lifetime of these virtual servers is often less than the lifetime of bare metal machines because the virtual machines are created to support a specific service and are terminated directly when the service is no longer needed. Some special cases are excluded from this example, for instance a DHCP servers. When using virtual machines the migration process can be finished fast. In a cluster of 10 web servers managed by CMS A offering the same website, a new webserver could be created managed by CMS B. When tested and approved it can be added to the cluster. An old server should be removed from the cluster and decommissioned. In large scale environments this will be an extensive job. This method does not scale in a farm of a hundred front-end web servers.
 
 \begin{quote}
+\label{quote}
 "More system administrators scale out services by using virtual machines" - J. van Ginkel (10-3-2016)
 \end{quote}
 
