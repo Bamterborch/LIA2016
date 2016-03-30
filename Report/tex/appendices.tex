@@ -5,11 +5,14 @@
   \section{Puppet Apache module} \label{app:puppetmodule}
   \begin{lstlisting}
    # This class definition depends on the puppetlabs/apache module
+   # and installs the Apache server on the client. Additionally
+   # it checks for the existence of a simple index.php file. 
+
    class pe_apache_app {
 
-   class { 'apache':
-     mpm_module => 'prefork',
-   }
+   # class { 'apache':
+   #   mpm_module => 'event',
+   # }
 
    include apache::mod::php
 
@@ -26,8 +29,8 @@
    }
   }
   \end{lstlisting}
-  \newpage
 
+  \newpage
   \section{Puppet agent removal} \label{app:puppetagent}
   \begin{lstlisting}
    # This class definition initiates a deinstallation of the Puppet
@@ -43,9 +46,9 @@
         cwd     => "/tmp/",
      }     
 
-     # Puppet runs with a semi-random order. Therefore the required 
-     # files are ensured to be present prior to executing the uninstaller. 
-     # Also refer to background section in this report.
+     # Puppet adheres to the 'before' statement, thus ensuring that  
+     # the required files are present prior to executing the uninstaller. 
+     # Also refer to results section in this report.
  
      file { '/tmp/uninstall.sh': 
         ensure => present,
@@ -71,6 +74,9 @@
   \newpage  
   \section{Ansible migration playbook} \label{app:ansiblemigration}
   \begin{lstlisting}
+  # This playbook ensures the Puppet master is present in the hostfile
+  # which is a natural requirement for downloading the Puppet agent 
+  # installer script.
   ---
   - hosts: slave02
     sudo: yes
@@ -83,32 +89,164 @@
   \newpage
   \section{Ansible Apache playbook} \label{app:ansibleplaybook}
   \begin{lstlisting}
-    ---
-    - hosts: webservers
-      sudo: yes
-      tasks:
-        - name: install apache2
-          apt: name=apache2 update_cache=yes state=latest
+  # This playbook installs an Apache webserver if it isn't present
+  # on the client machine yet. Subseqently it removes any existing
+  # (default) index.html and index.php files and creates a new
+  # managed index.php file.  
+  ---
+  - hosts: webservers
+    sudo: yes
+    tasks:
+      - name: install apache2
+        apt: name=apache2 update_cache=yes state=latest
 
-        - name: enabled mod_rewrite
-          apache2_module: name=rewrite state=present
-          notify:
-            - restart apache2
+      - name: enabled mod_rewrite
+        apache2_module: name=rewrite state=present
+        notify:
+          - restart apache2
 
-        - name: delete old apache index.html
-          file: path=/var/www/html/index.html state=absent
+      - name: delete old apache index.html
+        file: path=/var/www/html/index.html state=absent
 
-        - name: create new awesome index.php
-          file: path=/var/www/html/index.php state=file
+      - name: create new awesome index.php
+        file: path=/var/www/html/index.php state=file
 
-        - lineinfile: dest=/var/www/html/index.php regexp='.' state=absent
-        - lineinfile: dest=/var/www/html/index.php line="This machine is managed by Ansible!" state=present
-          notify:
-            - restart apache2
+      - lineinfile: dest=/var/www/html/index.php regexp='.' state=absent
+      - lineinfile: dest=/var/www/html/index.php line="This machine is managed by Ansible!" state=present
+        notify:
+          - restart apache2
 
-    handlers:
-      - name: restart apache2
-        service: name=apache2 state=restarted
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
+  \end{lstlisting}
+  
+   \newpage
+  \section{Mgmt Graph definition} \label{app:mgmtgraph}
+  \begin{lstlisting}
+---
+graph: apache2
+comment: Parallel installation of Apache2 (Proof of Concept)
+resources:
+  exec:
+  - name: update
+    cmd: apt update
+    shell: ''
+    timeout: 0
+    watchcmd: ''
+    watchshell: ''
+    ifcmd: ''
+    ifshell: ''
+    pollint: 0
+    state: present
+  - name: upgrade
+    cmd: apt upgrade
+    shell: ''
+    timeout: 0
+    watchcmd: ''
+    watchshell: ''
+    ifcmd: ''
+    ifshell: ''
+    pollint: 0
+    state: present
+  - name: sleep1
+    cmd: sleep 10s
+    shell: ''
+    timeout: 0
+    watchcmd: ''
+    watchshell: ''
+    ifcmd: ''
+    ifshell: ''
+    pollint: 0
+    state: present
+  - name: sleep2
+    cmd: sleep 10s
+    shell: ''
+    timeout: 0
+    watchcmd: ''
+    watchshell: ''
+    ifcmd: ''
+    ifshell: ''
+    pollint: 0
+    state: present
+  - name: sleep3
+    cmd: sleep 10s
+    shell: ''
+    timeout: 0
+    watchcmd: ''
+    watchshell: ''
+    ifcmd: ''
+    ifshell: ''
+    pollint: 0
+    state: present
+  file:
+  - name: index
+    path: "/var/www/html/index.php"
+    content: |
+      <head>
+        <link rel="stylesheet" type="text/css" href="mystyle.css">
+      </head>
+      <p>This server is managed by MGMT.</p>
+    state: exists
+  - name: style
+    path: "/var/www/html/style.css"
+    content: |
+      body {
+        background-color: lightblue;
+      }
+    state: exists
+  pkg:
+  - name: apache2
+    state: installed
+  svc:
+  - name: apache2
+    meta:
+      autoedge: false
+    state: started
+edges:
+- name: e1
+  from:
+    res: exec
+    name: update
+  to:
+    res: exec
+    name: upgrade
+- name: e2
+  from:
+    res: exec
+    name: upgrade
+  to:
+    res: pkg
+    name: apache2
+- name: e3
+  from:
+    res: pkg
+    name: apache2
+  to:
+    res: file
+    name: index
+- name: e4
+  from:
+    res: pkg
+    name: apache2
+  to:
+    res: file
+    name: style
+- name: e5
+  from:
+    res: exec
+    name: sleep1
+  to:
+    res: exec
+    name: sleep2
+- name: e6
+  from:
+    res: exec
+    name: sleep1
+  to:
+    res: exec
+    name: sleep3
+
   \end{lstlisting}
 
 \end{appendices}

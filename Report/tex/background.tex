@@ -1,5 +1,89 @@
 \section{Background}\label{sec:background}
-As the line between system management and system orchestration is becoming thinner, configuration management tools are likely to be used for some orchestration purposes. Additionally, all configuration management systems (CMS) are using either a push or a pull system to inform clients in case of updates. Lastly, \texttt{mgmt} is a new system which challenges the architectural model of established configuration management tools. This section presents a brief comparison of the selected configuration management tools and the distributed \texttt{mgmt}.
+This section presents an overview of the currently available models for CMS's and briefly discusses the language constructs used within each tool. Additionally, as \texttt{mgmt} is a new system which challenges the architectural model of established configuration management tools, this section presents a brief overview of \texttt{mgmt}. Lastly, migration possibilities for the selected tools are discussed.
+
+\subsection{Product overview}
+In this report we repeatedly discuss configuration management systems. As this term carries a somewhat ambiguous definition, we settle on the definition as presented by Lexis \cite{lexis_2016} during a guest lecture at the University of Amsterdam. He defines configuration management as "the techniques and policies to track hardware, infrastructure and software, and the configuration thereof". During the course of this report we will use this definition exclusively.
+
+There are a lot of CMS's on the market and commonly each system employs a different architectural model. Our selection, consisting of Puppet, Ansible and \texttt{mgmt} each use a different architectural model. Additionally, each tool uses tool-specific language constructs. To provide some the main differences between each tool is visualized in table \ref{table:comparison}. As shown in table \ref{table:comparison} there are some different architectures for configuration management systems available. Each having their own advantages and disadvantages. The products in the table are introduced years apart from each other and exhibit a clear trend. Products went from pull-based to push-based systems. Nowadays efforts are being made to use a distributed model.
+
+\begin{table}[!ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llll@{}}
+\toprule
+ & \textbf{Puppet} & \textbf{Ansible} & \textbf{\texttt{Mgmt}} \\ \midrule
+\textbf{Introduced} & 2005 & 2012 & 2016 \\
+\textbf{Architecture} & Pull & Push & Distributed \\
+\textbf{Client} & Yes & No & Mesh of agents \\
+\textbf{TCP port} & 8140 & 22 & 2379 \\
+\textbf{Language} & Puppet DSL & YAML & Experimental DSL (YAML) \\
+\textbf{Processing} & (Semi) Random execution & Sequential execution & Parallel execution \\
+\textbf{Event driven} & No & No & Yes \\
+\textbf{OS support} & \begin{tabular}[c]{@{}l@{}}Major operating systems \\ that allow a Puppet Agent\end{tabular} & Every OS with support for SSH & \begin{tabular}[c]{@{}l@{}}UNIX based systems with \\ \texttt{systemd} and PackageKit \\ support\end{tabular} \\ \bottomrule
+\end{tabular}%
+}
+\caption{Comparison between most used configuration management systems a new model}
+\label{table:comparison}
+\end{table}
+
+All configuration management systems have some notion of idempotence. Put simply, an idempotent operation is one which can be applied multiple times without causing the result to diverge from the desired state
+
+\subsection{Architectural models}\label{subsec:archmod}
+All configuration management systems (CMS) are using either a push or a pull system to inform clients in case of updates. \cite{papazoglou2003service} Puppet and Chef are pull based CMS's. A clients needs to be installed on the managed machine. This clients checks in at the server every x minutes. For puppet the default x time is 30 minutes. So every 30 minutes the configuration as it should be according to puppet is compared to the current configuration of the server. The puppet configuration can make sure a specific version of Apache is installed or if a website contains a certain line of text. When the configuration differs from the configuration set in the Puppet configuration it will be changed immediately. Where Ansible and Salt use the push technique to send commands to a managed machine. Ansible uses playbook which hold the command set for specific server and it contains the destinations for the command set. The management server starts communication over SSH to the management machines and delivers and runs a python script on the client. So Python is a prerequisite for Ansible. The Python script is removed right after it is executed. This way of configuring servers is on demand. But as Puppet it is able to check for specific software versions or check file content and change it if needed. When a configuration differs from the configuration in the playbook. The client will be changed when the playbook is run by an administrator. So when a playbook is not run, the configuration could differ from the intended configuration for a long time. 
+
+\begin{figure}[H]
+\centering
+\begin{subfigure}{.33\textwidth}
+  \centering
+  \includegraphics[scale=0.5]{img/pull.png}
+  \caption{Pull architecture}
+  \label{fig:sub1}
+\end{subfigure}%
+\begin{subfigure}{.33\textwidth}
+  \centering
+  \includegraphics[scale=0.5]{img/push.png}
+  \caption{Push architecture}
+  \label{fig:sub2}
+\end{subfigure}
+\begin{subfigure}{.33\textwidth}
+  \centering
+  \includegraphics[scale=0.37]{img/distributed.png}
+  \caption{Distributed architecture}
+  \label{fig:sub3}
+\end{subfigure}
+\caption{Architectural models employed by configuration management systems}
+\label{fig:archmodel}
+\end{figure}
+
+When a CMS only needs SSH to remote configure a machine, the scale of systems it could manage is a lot bigger than a client based system. If the system to manage has a closed operating system it cant be managed by a pull based CMS. All large networking brands make sure there operating systems (OS) are able to keep running for years without interruption. To make sure the system stays up the OS is closed down making sure no third party applications are able to disrupt the system. Push based systems only rely on a SSH connection. Ansible is capable of executing the python script on the server, therefore the requirement of python on the managed server is no longer there. This makes it possible to manage closed source network operating systems like Juniper or Cisco devices run. 
+
+A router or switch could be set up with the necessary basics to make sure it can be placed at the designated location and is accessible over the network by SSH. Ansible can be set up to do the rest of the configuration. Running a playbook that will generate a base configuration for all the machines within the same class and check the running configuration to see if it matches. If it doesn't match. Ansible will change it. Next to configuration changes, depending on the brand of equipment, Ansible is capable of performing a code upgrade on network devices. Some of the new devices offer nonstop service upgrades \cite{NSSU}\cite{ISSU}, what actually means upgrading the system during office hours without any downtime (when everything is configured in a proper way and all requirements are matched). When the installed base of a specific brand and type is big enough automation of configuration or code changes have as much advantages on network devices as it has on server configuration.  Because distributed systems are still new, a complete overview is given in section \ref{subsec:distributedmgmt}
+
+\subsection{Distributed configuration management}\label{subsec:distributedmgmt}
+As previously alluded to, a relatively new configuration management tool on the horizon is \texttt{mgmt}. \texttt{Mgmt} is currently classified as a 'research prototype next generation configuration management tool' and was initially developed by Shubin \cite{shubin2016} as a series of extensions to Puppet. The tool focuses on key points in which current CMS are lacking, namely \textit{parallelization}, \textit{event driven convergence} and most notably, a \textit{distributed architecture} \footnote{The source code for \texttt{mgmt} is available on GitHub: \url{https://github.com/purpleidea/mgmt/}}. 
+
+\subsubsection{Distribution}
+The main point of innovation in \texttt{mgmt} is the distributed topology of the system. As discussed in section \ref{subsec:archmod}, more traditional tools like Ansible and Puppet generally run in a client-server, push or pull manner. Naturally with these models, as all code is placed in a central location, scalability and performance issues arise, especially when the amount of clients increases.
+%One of the most overlooked features in Puppet is the puppet executable. This allows you to both compile and apply catalogs locally, removing the complexity of running in client/server mode. However, as Shubin notes, this is a glorified method of running local scripts. Some users have opted not to use the Puppet master at all for scaling reasons. Although we feel that we have addressed most of these scaling issues with performance improvements in .25.x, the Puppet Master will always be the bottleneck in client/server mode. For this deployment practice, users compile catalogs and apply configuration changes locally with the puppet executable. Code on all of the hosts is then kept in sync with a central repository using something like rsync. This will always be the best way to scale Puppet deployments, but it suffers from a loss in security as well as ease of management. This introduces new questions. With no puppetmasters, you have to allow *every* server to connect to your database instance. Another option would be to use a tiered Puppet Master system in which areas are defined. The top tier master would maintain other Puppet masters which in turn configure a set of clients. Similarly, Ansible can run in a local mode by specifiying the target to be the local machine. 
+
+In order to achieve distribution \texttt{mgmt} relies on the Raft \cite{ongaro_2016} consensus algorithm to create a (full) mesh of \texttt{mgmt} agents as shown in figure \ref{fig:sub3}. This algorithm fits the theme of the CMS as it attempts to be an easier to understand version of Paxos. All resources as defined in the DSL are stored as a key-value pair in an \texttt{etcd} data store and due to the full mesh, every node can add or remove resources from the store. Due to the distribution of the key-value pairs, a failing \texttt{etcd} instance can be overcome by communicating with a different instance in the mesh. 
+
+As with any CMS however, scalability remains an issue. Creating a full mesh of connections is expensive as it requires $n(n-1)/2$ connections where $n$ is the amount of nodes in the mesh. As the total amount of nodes in the mesh increases, the total amount of required interconnections grows exponentially. Additionally, replicating the data between all key-value stores becomes more intensive each time a node is added. In order to overcome these issues \texttt{mgmt} elects a series of nodes to become \texttt{etcd} masters, which host an instance of the key-value store. All other nodes connect to these instances. As such a form of hierarchy is created in \texttt{mgmt}. This would add another layer around the distributed mesh as shown in \ref{fig:sub3}.
+
+The concept of sharing resources between nodes is not new however. Puppet has implemented this in its DSL language by means of an 'Exported Resource' \cite{exported_2016}. These resources allow the Puppet compiler to share information among nodes by combining information from multiple nodes’ catalogs. The downside of these exported resources is that it is an expensive process to generate a consistent view of the resources among all Puppet Masters in the cluster. In order to share the resource, the Puppet master sends a copy of every catalog it compiles to the central PuppetDB. The PuppetDB at that point sequentially runs through every resource definition and retains the most recent catalog for every node. Subsequently the compiled catalog is provided back to all Puppet Masters in the cluster.
+
+\subsubsection{Parallelization}
+Furthermore \texttt{mgmt} introduces the ability to perform actions in parallel. As displayed in table \ref{table:comparison}, traditional CMS's perform their actions in a sequential order. By using a parallel mode of operation, actions can be performed faster thus a desired state can be reached quicker. However, providing the option for parallel execution introduces room for errors as well. In a simple example, running two package installations with \texttt{apt} in parallel would fail due to a global lock on \texttt{dpkg}. Similarly, dependencies between applications and libraries would have to be resolved in a sequential manner. \texttt{Mgmt} deals with this scenario by batching (or grouping) all blocking operations and putting them in a sequential order. All operations which can be parallelized are placed in disjoint graphs. 
+
+Parallelization does allow a system to reach its end state more rapidly. Long running processes which limited the deployment speed in a sequential process can now be converge quicker. In a real world scenario it isn't uncommon for a company to have multiple disconnected modules without inter-dependencies running simultaneously. 
+
+\subsubsection{Event based model}
+Lastly, \texttt{mgmt} is triggered based on events. At this point in time \texttt{mgmt} heavily depends on PackageKit and \texttt{systemd} and as such currently only works on Linux based systems with all prerequisites in place. 
+All the discussed configuration management systems have a notion of idempotence. In practice this means that the tools check the state of a certain element and compare it to a desired end state. If the state at time of checking has diverged from the desired state, the configuration will be altered by either a pull (Puppet) or push (Ansible) operation. In the context of Puppet this check operation is executed every 30 minutes by default. Ansible's push operation has to be manually scheduled with a \texttt{cronjob}. This mode of operation allows a configuration to diverge during the timeframe in which no check operation is performed. Naturally, a more preferable method would be to define an end state
+
+\subsection{Language constructs}
+%Talk about consolidation of amount of lines of code
+As seen in chapter \ref{sec:relatedwork} a lot of companies are migrating away from puppet because the systems tends to end up into spaghetti code \cite{movingawayfrompuppet} where the same result could be created by newer systems with less code. According to Ryan Lane \cite{movingawayfrompuppet} the puppet code was ten thousand lines where the same result was achieved by thousand lines of Ansible code. Using a CMS within a small company is not very usefull since the CMS also needs to be maintained by the system administrator (SA). Using a CMS allows an SA to fix system bugs like shellshock within a couple of minutes on all managed servers as shown in code snippet \ref{lst:shellshock}.
 
 \begin{lstlisting}[caption={Shellshock security patching with Ansible playbook},label=lst:shellshock]
 - hosts: all
@@ -20,40 +104,32 @@ As the line between system management and system orchestration is becoming thinn
       when: ansible_os_family == "RedHat"
 \end{lstlisting}
 
+\begin{lstlisting}
+---
+graph: apache2
+comment: Parallel installation of Apache2 (Proof of Concept)
+resources:
+[...]  # Output omitted
+  pkg:
+  - name: apache2
+    state: installed
+  svc:
+  - name: apache2
+    meta:
+      autoedge: false
+    state: started
+\end{lstlisting}
+
+A full example of a resource graph in \texttt{mgmt} can be found in Appendix \ref{app:mgmtgraph}
+
 \subsection{Migration strategies}\label{subsec:migrationstrategies}
-Migrating between systems can be done in different strategies and using different tooling, when using Configuration management system (CMS) A on all of the servers. New servers can be managed by CMS B. This will slowly migrate between the systems. The lifetime of a server dictates the time to migrate, nowadays only the low level systems like NTP, DNS and authentication server should be bare metal servers. All other services depending on these could be virtual. The lifetime of these virtual servers is often less than the lifetime of bare metal machines because the virtual machines are created to support a specific service and are terminated directly when the service is no longer needed. Since we use Virtual machines the migration process could be finished a lot faster. In a cluster of 10 webservers managed by CMS A offering the same website, a new webserver could be created managed by CMS B. When tested and approved it should be added to the cluster. An old server should be removed from the cluster and decommissioned. In Large scale environments this will be an extensive job.
+Migrating between systems can be done in different strategies and using different tooling, when using Configuration management system (CMS) A on all of the servers. New servers can be managed by CMS B. This will result in a slow migration between the management systems. The lifetime of a server dictates the time it will take to migrate, nowadays only the low level systems like NTP, DNS and authentication server should be bare metal servers. All other services depending on these could be virtual. The lifetime of these virtual servers is often less than the lifetime of bare metal machines because the virtual machines are created to support a specific service and are terminated directly when the service is no longer needed. Some special cases are excluded from this example, for instance a DHCP servers. When using virtual machines the migration process can be finished fast. In a cluster of 10 webservers managed by CMS A offering the same website, a new webserver could be created managed by CMS B. When tested and approved it can be added to the cluster. An old server should be removed from the cluster and decommissioned. In Large scale environments this will be an extensive job. Try doing this in a farm of a hundred web front-end servers.
 
 \begin{quote}
 According to Jaap van Ginkel on thursday 10-3-2016 during a lecture on Large Installation Administration, "More system administrators scale out services by using virtual machines"
 \end{quote}
 
-To keep server management easy and effective. One system should be used and the migration should not stretch multiple years. A Big bang scenario is a proper alternative. Migrating all the webservers from CMS A to CMS B by a set of automated steps without installing new servers. Therefore not using extra resources and migrating without downtime. This big bang scenario is explained in this report as the focus of this report lays on Large Installation Adminstration.
+To keep server management easy and effective. One configuration management system should be used and the migration should not stretch multiple years. A Big bang scenario is a proper alternative. Migrating all the webservers from CMS A to CMS B by a set of automated steps without installing new servers. Therefore not using extra resources and migrating without downtime. This big bang scenario \cite{bigbang} is explained in this report as the focus of this report lays on Large Installation Administration.
 
-http://www.data-migrations.com/strategy.html
+Another advantage which \texttt{mgmt} poses is that a migration between a tool like Puppet the tools could potentially be fairly easy. Converting Puppet modules to \texttt{mgmt} graphs is a straight forward process as displayed by Frank \cite{frank_2016}. However, as \texttt{mgmt} is still classified as a research prototype we will not attempt to perform a full migration from an established system.  This is also exhibited by Frank \cite{frank_2016}. In the future, migrating from Puppet to Ansible and Ansible to MGMT is a logical step
 
-
-\subsection{Orchestration and configuration management}\label{subsec:orchestration}
-In this report we repeatedly discuss configuration management. As this term carries a somewhat ambiguous definition, we settle on the definition as presented by Lexis \cite{}. He defines configuration management as ``the techniques and policies to track hardware, infrastructure and software, and the configuration thereof''. During the course of this report we will use this definition exclusively.
-
-
-\subsection{Differences between Push and Pull based management systems}\label{subsec:pushpull}
-Puppet and Chef are pull based CMS's. A clients needs to be installed on the managed machine. This clients checks in at the server every x minutes. For puppet the default x time is 30 minutes. So every 30 minutes the configuration as it should be according to puppet is compared to the current configuration of the server. The puppet configuration can make sure a specific version of apache is installed or if a website contains a certain line of text. When the configuration differs from the configuration set in the Puppet configuration it will be changed immediately. Where Ansible and Salt use the push technique to send commands to a managed machine. Ansible uses playbook which hold the command set for specific server and it contains the destinations for the command set. The management server starts communication over SSH to the management machines and delivers and runs a python script on the client. So Python is a prerequisite for Ansible. The Python script is removed right after it is executed. This way of configuring servers is on demand. But as Puppet it is able to check for specific software versions or check file content and change it if needed. When a configuration differs from the configuration in the playbook. The client will be changed when the playbook is run by an administrator. So when a playbook is not run, the configuration could differ from the intended configuration for a long time. 
-
-When a CMS only needs SSH to remote configure a machine, the scale of systems it could manage is a lot bigger than a client based system. If the system to manage has a closed operating system it cant be managed by a pull based CMS. All large networking brands make sure there operating systems (OS) are able to keep running for years without interruption. To make sure the system stays up the OS is closed down making sure no third party applications are able to disrupt the system. Push based systems only rely on a SSH connection. Ansible is capable of executing the python script on the server, therefore the requirement of python on the managed server is no longer there. This makes it possible to manage closed source network operating systems like Juniper or Cisco devices run. 
-
-A router or switch could be set up with the necessary basics to make sure it can be placed at the designated location and is accessible over the network by SSH. Ansible can be set up to do the rest of the configuration. Running a playbook that will generate a base configuration for all the machines with the same class and check the running configuration to see if it matches. If it doesn't match. Ansible will change it. Next to configuration changes, depending on the brand of equipment, Ansible is capable of performing a code upgrade on network devices. Some of the new devices offer nonstop service upgrades \cite{NSSU}\cite{ISSU}, what actually means upgrading the system during office hours without any downtime (when everything is configured in a proper way and all requirements are matched). When the installed base of a specific brand and type is big enough automation of configuration or code changes have as much advantages on network devices as it has on server configuration.  
-
-\subsection{Distributed configuration management}\label{subsec:distributedmgmt}
-As previously alluded to, a relatively new configuration management tool on the horizon is \texttt{mgmt}. \texttt{Mgmt} is currently classified as a 'prototype next generation configuration management tool' and is developed by Shubin \cite{shubin2016}. The tool focuses on \textit{parallelization}, \textit{event driven changes} and most notably, a \textit{distributed architecture} \footnote{The source code for \texttt{mgmt} is available on GitHub: \url{https://github.com/purpleidea/mgmt/}}. 
-
-\subsubsection{Distribution}
-The main point of innovation in \texttt{mgmt} is the distributed topology of the system. As discussed in section \ref{subsec:pushpull}, traditional tools like Ansible and Puppet generally run in a client-server, push or pull manner. Naturally, as all code is placed in a central location, scalability and performance issues occur, especially when the amount of clients increases. Additionally, Shubin argues that using a client-server model reduces the configuration management tool to a single failure domain. Clustering of the master server could alleviate this problem, however, this would take away from the simplicity of a centralized system. Ansible on the other hand uses an orchestration model in which a push model is used. One of the most overlooked features in Puppet is the puppet executable. This allows you to both compile and apply catalogs locally, removing the complexity of running in client/server mode. However, as Shubin notes, this is a glorified method of running local scripts. Some users have opted not to use the Puppet master at all for scaling reasons. Although we feel that we have addressed most of these scaling issues with performance improvements in .25.x, the PuppetMaster will always be the bottleneck in client/server mode. For this deployment practice, users compile catalogs and apply configuration changes locally with the puppet executable. Code on all of the hosts is then kept in sync with a central repository using something like rsync. This will always be the best way to scale Puppet deployments, but it suffers from a loss in security as well as ease of management. This introduces new questions. With no puppetmasters, you have to allow *every* server to connect to your database instance. Another option would be to use a tiered Puppet Master system in which areas are defined. The top tier master would maintain other Puppet masters which in turn configure a set of clients. Similarly, Ansible can run in a local mode by specifiying the target to be the local machine. 
-
-\subsubsection{Parallelization}
-However, providing the option for parallel execution introduces room for errors as well. In a simple example, running two package installations with \texttt{apt} in parallel would fail due to a global lock on \texttt{dpkg}. Similarly, dependencies between applications and libraries would have to be resolved in a sequential manner. \texttt{Mgmt} deals with this scenario by batching (or grouping) all blocking operations and putting them in a sequential order. All operations which can be parallelized are placed in disjoint graphs as opposed to a directed acyclic graph. Parallelization does allow a system to reach its end state more rapidly. Long running processes which limited the deployment speed in a sequential process can now be converge quicker. In the setup for our experiment, the modules have direct dependencies. However, in a real world scenario it isn't uncommon for a company to have multiple disconnected modules without inter-dependencies run simultaneously. Tradeoff between safety and speed. 
-
-\subsubsection{Event based model}
-All the discussed configuration management systems have a notion of idempotence. In practice this means that the tools check the state of a certain element and compare it to a desired end state. If the state at time of checking has diverged from the desired state, the configuration will be altered by either a pull (Puppet) or push (Ansible) operation. In the context of Puppet this check operation is executed every 30 minutes by default. Ansible's push operation has to be manually scheduled with a \texttt{cronjob}. This mode of operation allows a configuration to diverge during the timeframe in which no check operation is performed. Naturally, a more preferable method would be to define an end state 
-
-\subsubsection{Migration possibilities}
-Another advantage which \texttt{mgmt} poses is that a migration between a tool like Puppet the tools could potentially be fairly easy. Converting Puppet modules to \texttt{mgmt} graphs is a straight forward process as displayed by ffrank \cite{}. However, due to the fact that \texttt{mgmt} still uses an experimental DSL, conversions at this point are mood. This is also exhibited by Frank \cite{}. 

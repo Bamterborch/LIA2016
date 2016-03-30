@@ -1,34 +1,128 @@
 \section{Results}\label{sec:results}
-This section will present the results of the applied migration strategy. 
-
-\subsection{Product comparison}
-
-\begin{table}[] 
-\centering
-\caption{Comparison between most used configuration management systems a new model}
-\label{table:comparison}
-\begin{tabular}{l|l|l|l|}
-\cline{2-4}
-             	  	& Puppet       & Anisible                                                               & MGMT         \\ \hline
-\multicolumn{1}{|l|}	{Introduced}   & 2005	    & 2012								     & 2015	    \\ \hline
-\multicolumn{1}{|l|}	{Architecture} & Pull         & Push                                                                   & Distributed  \\ \hline
-\multicolumn{1}{|l|}	{Client}       & Yes          & None                                                                   & Mash of agents  \\ \hline
-\multicolumn{1}{|l|}	{TCP port}     & 8140         & 22                                                                     & 2379             \\ \hline
-\multicolumn{1}{|l|}	{Language}     & Puppet DSL   & YAML                                                                   & Experimental DSL  \\ \hline
-\multicolumn{1}{|l|}	{Processing}   & Random execution		& Sequential                                                            & parallel execution \\ \hline
-\multicolumn{1}{|l|} 	{Event driven} & No           & No                                                                     & Yes              \\ \hline
-\multicolumn{1}{|l|}	{OS support}   & \begin{tabular}[c]{@{}l@{}}Major Operating systems \\ that allow a puppet client\end{tabular} & \begin{tabular}[c]{@{}l@{}}Everything that \\ accepts SSH\end{tabular} & \begin{tabular}[c]{@{}l@{}}Major Operating \\ systems \end{tabular} \\ \hline 
-\end{tabular}
-\end{table}
-
-As shown in table \ref{table:comparison} there are some different architectures for configuration management available. All with there own advantages and disadvantages. The products in the table are introduced years from each other. The trend went from pull based to push based systems where the latest approach uses a distributed system.
-
-%Talk about consolidation of amount of lines of code
-As seen in chapter \ref{sec:relatedwork} a lot of companies are migrating away from puppet because the systems tends to end up into spaghetti code \cite{movingawayfrompuppet} where the same result could be created by newer systems with less code. According to Ryan Lane \cite{movingawayfrompuppet} the puppet code was ten thousand lines where the same result was achieved by thousand lines of Ansible code. Using a CMS within a small company is not very usefull since the CMS also needs to be maintained by the system administrator (SA). Using a CMS allows an SA to fix system bugs like shellshock within a couple of minutes on all managed servers as shown in code snippet \ref{lst:shellshock}.
-
-\subsection{Operational differences}
-The benefits of each system is dictated by the chosen architecture. A push system like Ansible will connect to all of the systems that are a target for the playbook to see if the configuration matches the required configuration from the playbook. This make the architecture very easy to use, it has a low overhead and the only client side system requirement is the ability of an SSH connection into the client. But this architecture also knows a downside. When a Large environment has multiple playbooks and a specific playbook is not run systematically. Configuration changes can be made on local client system or application settings. Therefore not matching the rest of the servers with the same roll. The difference will only be corrected when the appropriate playbook is run from the Ansible server, it needs to be a setting that is regulated by the playbook as well. As for a pull based system the client checks in every 30 minutes (default for Puppet) and checks its configuration to the required configuration set by the master system. When changes are made to the system these changes will be corrected automatically. So unregistered changes will be overwritten as look as the configuration job regulates them. When changes are made to parts that are not regulated by the management system these changes will stay unnoticed and unchanged. The overhead of a pull based system can be a problem. Systems will check in every 30 minutes to look for changes. In large environments this could cause links getting fully used and solutions like voice over IP that demand low latency links could fail. Next to the differences between generic push and pull based systems Ansible and Puppet have there own restrictions. There is no way to tell Puppet what commands to execute first. When installing the Apache service and controlling the content of the html files published by Apache. The files could be created before Apache is installed. The installation of Apache will overwrite some of the files. So relations should be created within Puppet. These extra lines of code make Puppet a complex beast to manage. Where Ansible executes commands in the order as they are written in the playbook, in case of a failure The entire script is exited. When running the script again it will start from the first step. Trying to install Apache, where it was already installed in the first execution of the playbook. This will take extra time. It makes it easy to troubleshoot problems. When Puppet runs into an error, the next command from the job will be executed and after the entire job the commands that failed will be reported. Looking into complexity between puppet and Ansible, Ansible is a lot easier to learn and to implement into a new environment.
+In this section the outcomes of the applied migration strategy as designed in section \ref{sec:methodology} are discussed. Subsequently, results are presented for (re)convergence and parallel execution experiments in \texttt{mgmt}.
 
 \subsection{Migration results}
-When migrating between two CMS's, both CMS's need to talk to each other. Systems need to be removed from and added to configuration files. Therefore accounts that have the correct privileges need to be present at both environments. When creating a Puppet job that will run an Ansible playbook. User interaction is not allowed for running the playbook. Ansible uses certificates to login to the clients. So when the private key is protected by a password every playbook requires the password to be entered. Certificates is one of the methods most management solution use to connect to there clients. When new hosts are added to the management machines some user action is often required for the acceptance of certificates. For Puppet the way to allow all certificates is explained in section \ref{sec:methodology}. When the management server is ready to manage new clients. The proposed method in this report can be run during production hours, services on machines will not be interrupted in any way. This is because the management system the company is migrating away from will tell the clients to start communicating with a different management system. The jobs on the new management machines are executed by the old replaced system. The described method is also able to migrate a large number of machines at once instead of migrating server by server which will not scale in large environments. 
+The migration strategy as described in section \ref{sec:methodology} forms a large part of the results for this report. During the project the migration has been performed successfully in an automated fashion by creating a series of Ansible playbooks and Puppet modules. All created resources to make this migration possible have been made available in the appendices at the end of this report. Below are some migration specific results and key points which occured whilst performing the migration. 
+\\\\
+\noindent
+\textbf{State definition mismatches}\\
+In order to perform the migration of a node from Puppet to Ansible, the Puppet module defining the state of the Apache server has been converted to an Ansible playbook. The full Puppet module can be found in Appendix \ref{app:puppetmodule} and the Ansible playbook in Appendix \ref{app:ansibleplaybook}. A major factor of migrating a node between systems is the fact that all Puppet modules to be migrated need to be reproduced within Ansible playbooks (or vice versa). Special care has to be taken when reproducing these state definitions in either language as minor differences may cause downtime. In our state definitions for example a mismatch occured in the installed Apache modules.
+\\
+\begin{lstlisting}[caption={Module mismatch in state definitions},label=puppetmod]
+# Puppet module
+class { 'apache':
+     mpm_module => 'event',
+}
+
+# Ansible playbook
+ - name: enabled mod_rewrite
+        apache2_module: name=rewrite state=present
+\end{lstlisting}
+
+\noindent
+The Puppet module as shown in listing \ref{puppetmod} contained a module which was not present in the Ansible playbook and the other way around. This caused a reinstallation of the \texttt{apache2} package when Ansible applied its playbook on the clients. Therefore, adding complexity may cause recompilation of the target service and cause unexpected downtime when the conversion process of modules to playbooks is not fully correct.
+\\\\
+\noindent
+\textbf{Action handlers}\\
+Additionally we examined irregular behavior between Ansible and Puppet due to the way commands are handled by each system. Puppet for example uses a semi-random execution model by design when applying a Puppet module, meaning that actions defined in a Puppet module may not be applied in a sequential order. This may cause problems when installing services and defining resources. For example, the Puppet module displayed in Appendix \ref{app:puppetmodule} installs the \texttt{apache2} package and defines content for the index.php and style.css files to be hosted by the webserver. Due to its order of execution, Puppet could potentially attempt to create the files (in non-existent directories) prior to installing Apache. Moreoever, Puppet -as opposed to Ansible- does \textit{not} stop applying a module when errors occur. This would mean that reaching the desired end state would require a second Puppet run, which by default is set to 30 minutes. As such a broken service is delivered for half an hour if a Puppet module definition is not sufficiently specific. 
+\\
+\begin{lstlisting}[caption={Code order regulation in Puppet},label=seqorder]
+     file { '/tmp/uninstall.sh': 
+        ensure => present,
+        before => Exec['run_uninstaller'] 
+     }
+\end{lstlisting}
+
+\noindent
+Naturally, a relatively simple fix would be to define explicit relations between class definitions in the Puppet modules and resources. An example for this method is shown in listing \ref{seqorder} which is an excerpt from Appendix \ref{app:puppetmodule}. By using the \texttt{before} statement, the availability of the Puppet uninstaller is ensured prior to running the \texttt{run\_uninstaller} class. Still, when modules become more complex this would require a lot of extra code to be added, especially when modules are implemented in a hierachical structure. As opposed to Puppet, Ansible executes commands in the order as they are written in the playbook. In case of a failure the entire script is exited. When running the script again, it will start from the point where it failed last time. This makes an Ansible playbook easier to troubleshoot. Judging solely on these factors, Ansible fixes a series of issues present in Puppet, and as such is relatively easier to maintain in a large scale environment.
+\\\\
+\noindent
+\textbf{Configuration mismatch window}\\
+A push system like Ansible will connect to all of the clients targeted by a playbook to see if the configuration matches the required configuration as defined in the playbook. This make the architecture very easy to use, it has a low overhead and the only client side system requirement is to run an SSH server. However, this architecture also knows a downside. Ansible by default does not have a periodic push operation. When an environment has a large amount of playbooks and a specific playbook is not run periodically on certain machines, configuration changes can be made on local client system. Therefore not matching the rest of the servers with the same run. The difference will only be corrected when the appropriate playbook is run from the Ansible server, and only when the clients are placed in the correct groups. As for a pull based system the client checks in every 30 minutes (default for Puppet) and checks its configuration to the required configuration set by the master system. Still, proper placement of clients in groups is still required, as it should be, but the periodic check-in makes keeping a consistent environment easier. When changes are made to the system these changes will be corrected automatically. So unregistered changes will be overwritten as the configuration job regulates them. Important to note however is that when changes are made to parts which are not being regulated by the configuration management system, these changes will stay unnoticed and unchanged.
+\\\\
+\noindent
+\textbf{Execution rights \& user interaction}\\
+The described methodology requires that during a migration between two CMS's, both systems can to talk to each other with the appropriate rights. Systems need to be removed from and added to specific configuration files. Therefore accounts that have the correct privileges need to be present at both environments. In a real world scenario this would generally be solved by having a central user database with rights management features. This could be a Lightweight Directory Access Protocol Database (LDAP) for example. 
+
+Because this report aims to perform an automatic in-place migration, user interaction during the migration phase is not allowed. However, when new hosts are added to the management machines, some user action is often required for the acceptance of certificates for security reasons. For Puppet the way to allow all certificates is explained in section \ref{sec:methodology}. In summary, manual steps can be prevented by automatically accepting certificates from certain domains by utilising the \texttt{autosign.conf} file in Puppet. Ansible on the other hand uses certificates to login to the clients. So when the private key is protected by a password every playbook requires the password to be entered. As such, prior to migrating a certificate should be set up which omits the need for a password. Certificates are one of the most commonly used methods used by management solutions to connect to their clients. 
+
+The proposed method in this report can be ran during production hours as the services on nodes being migrated will not be interrupted, assuming state definitions are correct. Naturally the state definitions need to be properly tested prior to performing any migration. By utilising the proposed method, the CMS a company is migrating away from will tell its clients to start communicating with a different CMS. The described method is also able to migrate a large number of machines at once by defining groups in either CMS, instead of migrating on a server by server basis which doesn't scale in large environments.
+
+\subsection{\texttt{Mgmt} convergence speed}
+Following the methodology as discussed in section \ref{sec:methodology} this section presents results on file convergence and package convergence. 
+\\\\
+\noindent
+\textbf{File convergence}\\
+Defining the desired state of individual (configuration) files in computer systems is a fundamental goal of configuration management systems. Listing \ref{fileconv} presents the run of a single node graph in \texttt{mgmt} which defines a generic file, '\texttt{file1}' and continuously monitors its state. The lower portion of the listing indicates that requesting the contents of the file, subsequently removing it and then requesting the contents again gives the same results for both \texttt{cat} commands. This is due to the fact that removing the file triggers an \texttt{inotify} event which makes \texttt{mgmt} re-check the file state with the CheckApply routine. The initial string value "Convergence test" is restored before the second \texttt{cat} command has a chance to run. In the code listing this happens at 15:26:05. This test indicates that file state convergence with \texttt{mgmt} in a limited size environment can be reached within a second.
+\\
+\begin{lstlisting}[caption={Rapid file convergence in \texttt{mgmt}},label=fileconv]
+siem@development:~/mgmt$ ./run.sh run --file fileconv.yaml --graphviz=fileconv.dot
+make: Nothing to be done for `build'.
+[sudo] password for siem: 
+15:25:26 main.go:65: This is: mgmt, version: 0.0.2-46-g7f3ef5b-dirty
+15:25:26 main.go:66: Main: Start: 1458915926139787378
+15:25:26 main.go:196: Main: Running...
+15:25:26 main.go:106: Etcd: Starting...
+15:25:26 configwatch.go:54: Watching: fileconv.yaml
+15:25:26 etcd.go:132: Etcd: Watching...
+15:25:26 config.go:248: Compile: Adding AutoEdges...
+15:25:26 main.go:149: Graph: Vertices(1), Edges(0)
+15:25:26 main.go:154: Graphviz: Successfully generated graph!
+15:25:26 main.go:163: State: graphNil -> graphStarting
+15:25:26 file.go:325: File[file1]: CheckApply(true)
+15:25:26 main.go:165: State: graphStarting -> graphStarted
+15:26:05 file.go:325: File[file1]: CheckApply(true)  # Check file state
+15:26:05 file.go:363: File[file1]: Apply             # Apply desired state 
+15:26:13 main.go:51: Interrupted by ^C
+15:26:13 pgraph.go:559: File[file1]: Exited
+15:26:13 main.go:209: Goodbye!
+
+siem@development:~$ cat file1 && sudo rm file1 && cat file1 
+Convergence test                                     # Timestamp: 15:26:05
+Convergence test                                     # Timestamp: 15:26:05
+siem@development:~$
+\end{lstlisting}
+\noindent
+It should be noted however that the \texttt{etcd} master in this scenario is located on the node hosting the file. In a real world scenario with a hierarchical implementation of the \texttt{etcd} store, communication would be required between the node and the \texttt{etcd} instance to request the current state of the key-value pair (assuming the node hosting the file is not an \texttt{etcd} leader node). Still, rapid convergence of (configuration) files in the range of several seconds is a leap forward from periodic checking of the desired state.
+\\\\
+\noindent
+\textbf{Package convergence}\\
+After testing file convergence in \texttt{mgmt} we examine parallel execution and package convergence. Listing \ref{packconv} shows the creation of graph as based on figure \ref{fig:parallelexec} with its seven vertices and six edges based on the \texttt{pkg1.yaml} resource graph file. The full configuration file for this specific test scenario is available in appendix \ref{app:mgmtgraph}.
+\\
+\begin{lstlisting}[caption={Graph initiation for package convergence},label=packconv]
+siem@development:~/mgmt$ ./run.sh run --file pkg1.yaml --graphviz=output.dot
+[...] # Output omitted
+14:12:25 configwatch.go:54: Watching: pkg1.yaml
+14:12:25 etcd.go:132: Etcd: Watching...
+14:12:27 config.go:248: Compile: Adding AutoEdges...
+14:12:27 main.go:149: Graph: Vertices(7), Edges(6)
+14:12:27 main.go:152: Graphviz: output.dot
+14:12:27 main.go:163: State: graphNil -> graphStarting
+14:12:27 main.go:165: State: graphStarting -> graphStarted
+[...] # Output omitted
+14:12:27 pkg.go:208: Pkg[apache2]: CheckApply(true)
+14:12:29 pkg.go:259: Pkg[apache2]: Apply
+14:12:29 pkg.go:266: Pkg[apache2]: Set: installed...      # Initiate install
+14:12:47 packagekit.go:417: PackageKit: Timeout: InstallPackages: Waiting for 'Destroy'
+14:12:47 pkg.go:284: Pkg[apache2]: Set: installed success!  # Finish install
+\end{lstlisting}
+\noindent
+At this point the graph is initiated and the \texttt{apache2} package has been installed. This is also visualized in the lower section of listing \ref{packconv}. Subsequently, in listing \ref{remconv}, the \texttt{apache2} package is removed which triggers a PackageKit event (which is linked to \texttt{dbus}), eventually causing \texttt{mgmt} to reinstall the package. 
+\\
+\begin{lstlisting}[caption={PackageKit convergence in \texttt{mgmt}},label=remconv]
+14:13:33 pkg.go:208: Pkg[apache2]: CheckApply(true)
+14:13:35 pkg.go:259: Pkg[apache2]: Apply
+14:13:35 pkg.go:266: Pkg[apache2]: Set: installed...
+
+siem@development:~$ service apache2 status     # Service status (initial run)
+ * apache2 is running
+siem@development:~$ sudo apt remove --purge -y apache2  # Timestamp: 14:12:50
+siem@development:~$ service apache2 status
+apache2: unrecognized service
+siem@development:~$ service apache2 status              # Timestamp: 14:13:35
+ * apache2 is running
+\end{lstlisting}
+
+\noindent
+Judging by the timestamps it takes circa 45 seconds from the point of removing the package to have \texttt{apache2} operational again in its intended state. Naturally, the time it takes to reconverge is largely dependent on the type of package being installed and the amount of dependencies of the package. Within \texttt{mgmt}, in general, reaching the desired state for the installed packages on a system is significantly slower than file reconvergence. However, considering the fact that traditional push and pull based systems can't realistically poll within sub-minute timeframes, \texttt{mgmt} still outperforms traditional systems significantly.  
 
