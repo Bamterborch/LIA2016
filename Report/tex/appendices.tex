@@ -124,6 +124,9 @@
    \newpage
   \section{Mgmt Graph definition} \label{app:mgmtgraph}
   \begin{lstlisting}
+# This graph definition performs an 'apt update' and an 'apt-upgrade' prior to
+# installing the apache2 package. Subsequently the files to be hosted by the 
+# web server are generated. In parallel a series of sleep operations are ran. 
 ---
 graph: apache2
 comment: Parallel installation of Apache2 (Proof of Concept)
