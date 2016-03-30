@@ -82,7 +82,32 @@ Parallelization does allow a system to reach its end state more rapidly. Long ru
 Traditional CMS's are limited by the fact that a desired state is only applied perodically or manually. This mode of operation allows a configuration to diverge during the timeframe in which no check operation is performed by the master server. Naturally, a more preferable method would be to define an end state and have it applied constantly. \texttt{Mgmt} attempts to achieve this by triggering a reconvergence operation based on system events. For example, when a file is changed on the system which is being managed by \texttt{mgmt}, an \texttt{inotify} event is triggered (which is coupled to \texttt{dbus}. Based on this event the \texttt{mgmt} agent checks the desired state based on key-value pairs in the distributed \texttt{etcd} store and reconverges to that given state. Similarly for service states \texttt{systemd} events are checked and software packages are based on PackageKit events. By utilising this methodology, rapid convergence of the desired state in an environment can be achieved. The event based nature of \texttt{mgmt} is further explored in a separate experiment in section \ref{sec:methodology}. As shown in table \ref{table:comparison}, the dependency on these event triggers limits \texttt{mgmt} to UNIX systems which use PackageKit and \texttt{systemd}.  
 
 \subsection{Language constructs}
-A primary reason for companies to migrate away from Puppet is because defining a desired state in Puppets proprietary DSL is relatively difficult. Puppet uses modules in which the defined resources are hierachically structured. The hierarhical structure is achieved by defining a series of interconnected class definitions. When modules grow in size and become more complex the amount of code required to define a state becomes unmanageable. Lane \cite{movingawayfrompuppet} from the company 'Lyft' acknowledges this issue and talks about how their Puppet code base consisted of approximately ten thousand lines of code where the same result was achieved by circa a thousand lines of Ansible code after migrating. Ansible on the other hand uses a DSL based on Yet Another Markup Language (YAML) which allows for more human readable code with actions being defined in a sequential manner. Listing \ref{lst:shellshock} provides an example of a piece of Ansible code which can fix the Shellshock vulnerability in a relatively small amount of lines \cite{severdensity_2015}. The Puppet module counterpart on the other hand consists of many hierachically structured and interconnected class definitions \footnote{A Puppet module for fixing the Shellshock vulnerability is available at \url{https://forge.puppetlabs.com/renanvicente/shellshock/readme}.}.
+A primary reason for companies to migrate away from Puppet is because defining a desired state in Puppets proprietary DSL is relatively difficult. Puppet uses modules in which the defined resources are hierachically structured. The hierarhical structure is achieved by defining a series of interconnected class definitions. When modules grow in size and become more complex the amount of code required to define a state becomes unmanageable. Lane \cite{movingawayfrompuppet} from the company 'Lyft' acknowledges this issue and talks about how their Puppet code base consisted of approximately ten thousand lines of code where the same result was achieved by circa a thousand lines of Ansible code after migrating. The code snippet in listing \ref{lst:puppetshellshock} illustrates the complexity of hierarchic Puppet modules regarding a vulnerability patch for Shellshock \footnote{The full Puppet module for fixing the Shellshock vulnerability is available at \url{https://forge.puppetlabs.com/renanvicente/shellshock/readme}.}.
+\\
+\begin{lstlisting}[caption={Code snippet - Shellshock security patching with Puppet module},label=lst:puppetshellshock]
+class shellshock {
+	class shellshock::fix (
+	  $bash_url = $shellshock::fix::params::bash_url,
+	) inherits shellshock::fix::params {
+	  anchor {'shellshock::fix::repo':
+	  }->
+	  class {'shellshock::fix::package':
+	    bash_url => $bash_url,
+	  }
+	}
+
+	class shellshock::fix::params {
+
+	  $bash_url = $::architecture ? {
+	    'i386'  => 'http://ftp.linux.it/pub/People/md/bash/bash_3.2-4.2_i386.deb',
+	    'amd64' => 'http://ftp.linux.it/pub/People/md/bash/bash_3.2-4.2_amd64.deb',
+	    default => 'http://ftp.linux.it/pub/People/md/bash/bash_3.2-4.2_i386.deb',
+	  }
+	}
+[...] # Output omitted
+\end{lstlisting}
+\noindent
+Ansible on the other hand uses a DSL based on Yet Another Markup Language (YAML) which allows for more human readable code with actions being defined in a sequential manner. Listing \ref{lst:shellshock} provides an example of a piece of Ansible code which can fix the Shellshock vulnerability in a relatively small amount of lines \cite{severdensity_2015}. The Puppet module counterpart on the other hand consists of many hierachically structured and interconnected class definitions.
 \\
 \begin{lstlisting}[caption={Shellshock security patching with Ansible playbook},label=lst:shellshock]
 - hosts: all
@@ -128,7 +153,7 @@ Migrating between systems can be done by using various strategies and with a bro
 
 \begin{quote}
 \label{quote}
-"More system administrators scale out services by using virtual machines" - J. van Ginkel (10-3-2016)
+\textit{"More system administrators scale out services by using virtual machines"} - J. van Ginkel (10-3-2016)
 \end{quote}
 
 To keep server management easy and effective. One configuration management system should be used and the migration should not stretch multiple years. A Big bang scenario is a proper alternative. Migrating all the webservers from CMS A to CMS B by a set of automated steps without installing new servers. Therefore not using extra resources and migrating without downtime. This big bang scenario \cite{bigbang} is explained in this report as the focus of this report lays on Large Installation Administration.
