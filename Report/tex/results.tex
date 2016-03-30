@@ -6,7 +6,7 @@ The migration strategy as described in section \ref{sec:methodology} forms a lar
 \\\\
 \noindent
 \textbf{State definition mismatches}\\
-In order to perform the migration of a node from Puppet to Ansible, the Puppet module defining the state of the Apache server has been converted to an Ansible playbook. The full Puppet module can be found in Appendix \ref{app:puppetmodule} and the Ansible playbook in Appendix \ref{app:ansibleplaybook}. A major factor of migrating a node between systems is the fact that all Puppet modules to be migrated need to be reproduced within Ansible playbooks (or vice versa). Special care has to be taken when reproducing these state definitions in either language as minor differences may cause downtime. In our state definitions for example a mismatch occured in the installed Apache modules.
+In order to perform the migration of a node from Puppet to Ansible, the Puppet module defining the state of the Apache server has been converted to an Ansible playbook. The full Puppet module can be found in Appendix \ref{app:puppetmodule} and the Ansible playbook in Appendix \ref{app:ansibleplaybook}. A major factor of migrating a node between systems is the fact that all Puppet modules to be migrated need to be reproduced within Ansible playbooks (or vice versa). Special care has to be taken when reproducing these state definitions in either language as minor differences may cause downtime. In the state definitions used for the migration a mismatch occured in the installed Apache modules.
 \\
 \begin{lstlisting}[caption={Module mismatch in state definitions},label=puppetmod]
 # Puppet module
@@ -42,7 +42,7 @@ A push system like Ansible will connect to all of the clients targeted by a play
 \\\\
 \noindent
 \textbf{Execution rights \& user interaction}\\
-The described methodology requires that during a migration between two CMS's, both systems can to talk to each other with the appropriate rights. Systems need to be removed from and added to specific configuration files. Therefore accounts that have the correct privileges need to be present at both environments. In a real world scenario this would generally be solved by having a central user database with rights management features. This could be a Lightweight Directory Access Protocol Database (LDAP) for example. 
+The described methodology requires that during a migration between two CMS's, both systems can talk to each other with the appropriate rights. Systems need to be removed from and added to specific configuration files. Therefore accounts that have the correct privileges need to be present at both environments. In a real world scenario this would generally be solved by having a central user database with rights management features. This could be a Lightweight Directory Access Protocol Database (LDAP) for example. 
 
 Because this report aims to perform an automatic in-place migration, user interaction during the migration phase is not allowed. However, when new hosts are added to the management machines, some user action is often required for the acceptance of certificates for security reasons. For Puppet the way to allow all certificates is explained in section \ref{sec:methodology}. In summary, manual steps can be prevented by automatically accepting certificates from certain domains by utilising the \texttt{autosign.conf} file in Puppet. Ansible on the other hand uses certificates to login to the clients. So when the private key is protected by a password every playbook requires the password to be entered. As such, prior to migrating a certificate should be set up which omits the need for a password. Certificates are one of the most commonly used methods used by management solutions to connect to their clients. 
 
@@ -80,14 +80,14 @@ make: Nothing to be done for `build'.
 siem@development:~$ cat file1 && sudo rm file1 && cat file1 
 Convergence test                                     # Timestamp: 15:26:05
 Convergence test                                     # Timestamp: 15:26:05
-siem@development:~$
+siem@development:~$ 
 \end{lstlisting}
 \noindent
 It should be noted however that the \texttt{etcd} master in this scenario is located on the node hosting the file. In a real world scenario with a hierarchical implementation of the \texttt{etcd} store, communication would be required between the node and the \texttt{etcd} instance to request the current state of the key-value pair (assuming the node hosting the file is not an \texttt{etcd} leader node). Still, rapid convergence of (configuration) files in the range of several seconds is a leap forward from periodic checking of the desired state.
 \\\\
 \noindent
 \textbf{Package convergence}\\
-After testing file convergence in \texttt{mgmt} we examine parallel execution and package convergence. Listing \ref{packconv} shows the creation of graph as based on figure \ref{fig:parallelexec} with its seven vertices and six edges based on the \texttt{pkg1.yaml} resource graph file. The full configuration file for this specific test scenario is available in appendix \ref{app:mgmtgraph}.
+After testing file convergence in \texttt{mgmt} parallel execution and package convergence is examined. Listing \ref{packconv} shows the creation of graph as based on figure \ref{fig:parallelexec} with its seven vertices and six edges based on the \texttt{pkg1.yaml} resource graph file. The full configuration file for this specific test scenario is available in appendix \ref{app:mgmtgraph}.
 \\
 \begin{lstlisting}[caption={Graph initiation for package convergence},label=packconv]
 siem@development:~/mgmt$ ./run.sh run --file pkg1.yaml --graphviz=output.dot
